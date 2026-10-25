@@ -10,23 +10,23 @@ export interface BadgeProps {
 }
 
 const VARIANTS = {
-  default: 'bg-[#FAF7F1] text-[#352A28] border-[#E8E0D7]',
-  maroon: 'bg-[#F5EEF0] text-[#6E2639] border-[#6E2639]/25',
-  cream: 'bg-[#F3EBDD]/60 text-[#352A28] border-[#E8E0D7]',
-  success: 'bg-[#EDF7F1] text-[#2D7A4F] border-[#2D7A4F]/25',
-  warning: 'bg-[#FEF8ED] text-[#92600C] border-[#92600C]/25',
-  danger: 'bg-[#FDF0F1] text-[#9B2335] border-[#9B2335]/25',
-  info: 'bg-[#EDF4FA] text-[#1A5F8A] border-[#1A5F8A]/25',
+  default: 'bg-[#FAF7F5] text-[#22161A] border-[#EFE8E2]',
+  maroon: 'bg-[#FAF0F3] text-[#4E1724] border-[#4E1724]/20',
+  cream: 'bg-[#FBF6F0] text-[#756C69] border-[#EFE8E2]',
+  success: 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]/60',
+  warning: 'bg-[#FEF7EC] text-[#B45309] border-[#FDE68A]/60',
+  danger: 'bg-[#FEF2F2] text-[#DC2626] border-[#FECACA]/60',
+  info: 'bg-[#F5F3FF] text-[#6D28D9] border-[#DDD6FE]/60',
 };
 
 const DOT_COLORS = {
-  default: 'bg-[#8A817B]',
-  maroon: 'bg-[#6E2639]',
-  cream: 'bg-[#B5AAA5]',
-  success: 'bg-[#2D7A4F]',
-  warning: 'bg-[#92600C]',
-  danger: 'bg-[#9B2335]',
-  info: 'bg-[#1A5F8A]',
+  default: 'bg-[#756C69]',
+  maroon: 'bg-[#4E1724]',
+  cream: 'bg-[#A39893]',
+  success: 'bg-[#059669]',
+  warning: 'bg-[#B45309]',
+  danger: 'bg-[#DC2626]',
+  info: 'bg-[#6D28D9]',
 };
 
 export default function Badge({
@@ -40,7 +40,7 @@ export default function Badge({
     <span
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full border font-medium tracking-tight',
-        size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-xs',
+        size === 'sm' ? 'px-3 py-1 text-xs' : 'px-3.5 py-1.5 text-xs',
         VARIANTS[variant],
         className
       )}

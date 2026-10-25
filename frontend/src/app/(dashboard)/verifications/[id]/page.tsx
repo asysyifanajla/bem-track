@@ -8,19 +8,28 @@ import {
   AlertCircle,
   XCircle,
   FileText,
-  FileSpreadsheet,
   Download,
+  Eye,
+  EyeOff,
+  Building2,
+  Calendar,
+  Wallet,
+  ShieldCheck,
+  FileCheck,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Sparkles,
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Stepper, { Step } from '@/components/ui/Stepper';
 import Modal from '@/components/ui/Modal';
 import { getMockPrograms, saveMockPrograms, addMockActivityLog } from '@/lib/mockData';
-import { STATUS_CONFIG } from '@/lib/constants';
+import { STATUS_CONFIG, PROGRAM_CATEGORIES } from '@/lib/constants';
 import { formatDate } from '@/lib/utils';
 import { canVerifyAdmin, canVerifyBudget, canApproveExecutive } from '@/lib/permissions';
 import { UserRole } from '@/types/auth';
 import { ProgramStatus } from '@/types/program';
-
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 interface PageProps {
@@ -38,13 +47,18 @@ export default function VerificationDetailPage({ params }: PageProps) {
   const currentUser = useCurrentUser();
   const userRole = (currentUser.role || 'GUBERNUR') as UserRole;
 
+  // Document preview state
+  const [showPreview, setShowPreview] = useState(true);
+  const [previewZoom, setPreviewZoom] = useState(100);
+
   // Modal decision state
   const [modalAction, setModalAction] = useState<'APPROVE' | 'REVISION' | 'REJECT' | null>(null);
   const [decisionNote, setDecisionNote] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [modalError, setModalError] = useState<string | null>(null);
 
-  // Stepper calculations (Alur Baru: Departemen -> Bendum -> Sekum -> Gubernur)
+  // Stepper calculations (Departemen -> Bendum [Tahap 1] -> Sekum [Tahap 2] -> Gubernur [Tahap 3])
   const isBendumDone = ['SEKUM_REVIEW', 'GUBERNUR_REVIEW', 'APPROVED'].includes(program.status);
   const isSekumDone = ['GUBERNUR_REVIEW', 'APPROVED'].includes(program.status);
   const isGubernurDone = program.status === 'APPROVED';
@@ -52,8 +66,8 @@ export default function VerificationDetailPage({ params }: PageProps) {
   const steps: Step[] = [
     {
       id: 'step-dept',
-      label: 'Departemen',
-      sublabel: 'Pengajuan Proposal / LPJ',
+      label: 'Departemen Pelaksana',
+      sublabel: 'Pengajuan Proposal & RAB',
       status: 'completed',
       timestamp: formatDate(program.submittedAt),
       actor: program.submittedBy,
@@ -61,7 +75,7 @@ export default function VerificationDetailPage({ params }: PageProps) {
     {
       id: 'step-bendum',
       label: 'Bendahara Umum',
-      sublabel: 'Tahap 1: Verifikasi Usulan & Anggaran',
+      sublabel: 'Tahap 1: Verifikasi Usulan & Anggaran (RAB)',
       status: isBendumDone
         ? 'completed'
         : program.status === 'BENDUM_REVIEW'
@@ -87,7 +101,7 @@ export default function VerificationDetailPage({ params }: PageProps) {
     {
       id: 'step-gub',
       label: 'Gubernur BEM',
-      sublabel: 'Tahap 3: Persetujuan Eksekutif Final',
+      sublabel: 'Tahap 3: Persetujuan Eksekutif Final (Approval)',
       status: isGubernurDone
         ? 'completed'
         : program.status === 'GUBERNUR_REVIEW'
@@ -98,15 +112,32 @@ export default function VerificationDetailPage({ params }: PageProps) {
     },
   ];
 
-  // Authority check
+  // Authority check based on current program stage and user role
+  const isAtBendumStage = program.status === 'BENDUM_REVIEW';
+  const isAtSekumStage = program.status === 'SEKUM_REVIEW';
+  const isAtGubernurStage = program.status === 'GUBERNUR_REVIEW';
+
   const canDecide =
-    (program.status === 'BENDUM_REVIEW' && canVerifyBudget(userRole)) ||
-    (program.status === 'SEKUM_REVIEW' && canVerifyAdmin(userRole)) ||
-    (program.status === 'GUBERNUR_REVIEW' && canApproveExecutive(userRole));
+    (isAtBendumStage && canVerifyBudget(userRole)) ||
+    (isAtSekumStage && canVerifyAdmin(userRole)) ||
+    (isAtGubernurStage && canApproveExecutive(userRole));
+
+  const handleDownloadDocument = () => {
+    // In production, downloads the actual stored document; in demo, simulates secure download
+    alert(`Mengunduh dokumen: "${program.proposalFileName || 'Dokumen_Proposal_dan_RAB.pdf'}"`);
+  };
 
   const handleConfirmDecision = async () => {
     if (!modalAction) return;
+
+    // Require explanation note when requesting revision or rejecting
+    if ((modalAction === 'REVISION' || modalAction === 'REJECT') && !decisionNote.trim()) {
+      setModalError('Wajib mencantumkan catatan evaluasi/alasan agar pengusul dapat menindaklanjuti.');
+      return;
+    }
+
     setIsProcessing(true);
+    setModalError(null);
 
     await new Promise((r) => setTimeout(r, 450));
 
@@ -126,9 +157,32 @@ export default function VerificationDetailPage({ params }: PageProps) {
       }
     } else if (modalAction === 'REVISION') {
       nextStatus = 'REVISION';
+      stageRole =
+        program.status === 'BENDUM_REVIEW'
+          ? 'Bendahara Umum'
+          : program.status === 'SEKUM_REVIEW'
+            ? 'Sekretaris Umum'
+            : 'Gubernur BEM';
     } else if (modalAction === 'REJECT') {
       nextStatus = 'REJECTED';
+      stageRole =
+        program.status === 'BENDUM_REVIEW'
+          ? 'Bendahara Umum'
+          : program.status === 'SEKUM_REVIEW'
+            ? 'Sekretaris Umum'
+            : 'Gubernur BEM';
     }
+
+    const defaultNotes: Record<string, string> = {
+      APPROVE:
+        program.status === 'BENDUM_REVIEW'
+          ? 'Rencana Anggaran Biaya (RAB) pada dokumen proposal telah diverifikasi dan disetujui untuk lanjut ke Sekretaris Umum.'
+          : program.status === 'SEKUM_REVIEW'
+            ? 'Kelengkapan administrasi dan naskah dinas proposal telah divalidasi lengkap.'
+            : 'Usulan program kerja telah disetujui secara resmi oleh Gubernur BEM.',
+      REVISION: 'Terdapat poin anggaran / usulan yang memerlukan perbaikan dari pengusul.',
+      REJECT: 'Usulan program kerja tidak dapat disetujui.',
+    };
 
     const newHistory = [
       ...(program.approvalHistory || []),
@@ -146,7 +200,7 @@ export default function VerificationDetailPage({ params }: PageProps) {
             : modalAction === 'REVISION'
               ? ('REVISION' as const)
               : ('REJECTED' as const),
-        note: decisionNote || 'Pemeriksaan tahapan birokrasi telah diselesaikan.',
+        note: decisionNote || defaultNotes[modalAction],
         actorName: currentUser.name || 'Pengurus BEM',
         actorRole: stageRole,
         timestamp: new Date().toISOString(),
@@ -173,18 +227,19 @@ export default function VerificationDetailPage({ params }: PageProps) {
       userRole: userRole,
       action: `Keputusan Verifikasi [${modalAction}] pada: ${program.title}`,
       module: 'Verifications',
-      details: decisionNote || `Status bergeser menjadi: ${nextStatus}`,
+      details: decisionNote || `Status diperbarui menjadi: ${nextStatus}`,
     });
 
     setIsProcessing(false);
     setModalAction(null);
-    setFeedback(`Keputusan berhasil dicatat (Status program saat ini: ${nextStatus}).`);
+    setDecisionNote('');
+    setFeedback(`Keputusan verifikasi berhasil dicatat. Status program saat ini: ${STATUS_CONFIG[nextStatus as keyof typeof STATUS_CONFIG]?.label || nextStatus}.`);
   };
 
   return (
-    <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
-      {/* Header bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-[#E8E0D7]">
+    <div className="space-y-6 animate-fade-in max-w-5xl mx-auto font-sans">
+      {/* Top Header Navigation Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-[#E8DFD3]">
         <button
           onClick={() => router.push('/verifications')}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8A817B] hover:text-[#352A28] cursor-pointer"
@@ -199,171 +254,545 @@ export default function VerificationDetailPage({ params }: PageProps) {
       </div>
 
       {feedback && (
-        <div className="p-3 bg-[#EDF7F1] border border-[#2D7A4F]/25 rounded-lg flex items-center gap-2 text-xs font-semibold text-[#2D7A4F]">
+        <div className="p-3.5 bg-[#EDF7F1] border border-[#2D7A4F]/25 rounded-2xl flex items-center gap-2 text-xs font-semibold text-[#2D7A4F] shadow-2xs">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{feedback}</span>
         </div>
       )}
 
-      {/* Hero Overview */}
-      <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-4">
+      {/* Hero Overview Card */}
+      <div className="bg-white border border-[#E8DFD3] rounded-3xl p-5 sm:p-7 space-y-4 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold bg-[#F5EEF0] text-[#6E2639] px-2 py-0.5 rounded-sm">
-              Status: {STATUS_CONFIG[program.status as keyof typeof STATUS_CONFIG]?.label || program.status}
-            </span>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono font-semibold text-[#6E2639] bg-[#F5EEF0] px-2.5 py-0.5 rounded-full">
+                {program.id}
+              </span>
+              <span className="text-xs font-semibold bg-[#FAF7F1] text-[#352A28] border border-[#E8DFD3] px-2.5 py-0.5 rounded-full">
+                Status: {STATUS_CONFIG[program.status as keyof typeof STATUS_CONFIG]?.label || program.status}
+              </span>
+            </div>
+
             <h1 className="text-xl sm:text-2xl font-bold text-[#352A28] tracking-tight">
               {program.title}
             </h1>
-            <p className="text-xs text-[#8A817B]">
-              Diajukan oleh: <strong className="text-[#352A28]">{program.submittedBy}</strong> &bull;{' '}
-              {program.departemen} &bull; Tanggal: {formatDate(program.submittedAt)}
+
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#8A817B] pt-0.5">
+              <span className="flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5 text-[#6E2639]" />
+                <strong className="text-[#352A28]">{program.departemen}</strong>
+              </span>
+              <span>&bull;</span>
+              <span>Diajukan: {formatDate(program.submittedAt)}</span>
+              <span>&bull;</span>
+              <span className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-[#6E2639]" />
+                <span>Pelaksanaan: {formatDate(program.plannedDate)}</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Current Stage Indicator Box */}
+          <div className="bg-[#FAF7F1] border border-[#E8DFD3] p-3 rounded-2xl shrink-0 text-right sm:text-left">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#8A817B]">
+              Tahapan Peninjauan
+            </p>
+            <p className="text-xs font-bold text-[#6E2639] mt-0.5">
+              {program.status === 'BENDUM_REVIEW'
+                ? 'Tahap 1: Bendahara Umum (RAB)'
+                : program.status === 'SEKUM_REVIEW'
+                  ? 'Tahap 2: Sekretaris Umum (Berkas)'
+                  : program.status === 'GUBERNUR_REVIEW'
+                    ? 'Tahap 3: Gubernur BEM (Approval)'
+                    : program.status === 'APPROVED'
+                      ? 'Selesai: Telah Disetujui'
+                      : 'Perbaikan / Revisi'}
             </p>
           </div>
         </div>
 
         {/* Stepper Progress */}
-        <div className="pt-3 border-t border-[#E8E0D7] overflow-x-auto">
+        <div className="pt-3 border-t border-[#E8DFD3] overflow-x-auto">
           <Stepper steps={steps} />
         </div>
       </div>
 
-      {/* Split Review Details & Documents */}
+      {/* Main Grid: Left Column (Document & RAB Review), Right Column (Decisions & Logs) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column (7 cols): Deskripsi */}
-        <div className="lg:col-span-7 space-y-5">
-          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3">
-            <h3 className="text-sm font-bold text-[#352A28] pb-2 border-b border-[#E8E0D7]">
-              Ringkasan Proposal
+        {/* Left Column (7 cols): Document Preview & Proposal Details */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Document Access & Preview Card (Central Requirement B) */}
+          <div className="bg-white border border-[#E8DFD3] rounded-3xl p-5 sm:p-6 space-y-4 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-[#E8DFD3]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#F5EEF0] border border-[#6E2639]/20 flex items-center justify-center text-[#6E2639] shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-sm sm:text-base font-bold text-[#352A28]">
+                    Dokumen Proposal &amp; Rencana Anggaran Biaya (RAB)
+                  </h2>
+                  <p className="text-xs text-[#8A817B]">
+                    Akses berkas resmi yang memuat usulan kegiatan terpadu beserta RAB
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowPreview(!showPreview)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F1] border border-[#E8DFD3] text-xs font-semibold text-[#352A28] hover:bg-[#F3EBDD] transition-colors cursor-pointer"
+                >
+                  {showPreview ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  <span>{showPreview ? 'Tutup Pratinjau' : 'Buka Pratinjau'}</span>
+                </button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  leftIcon={<Download className="w-3.5 h-3.5" />}
+                  onClick={handleDownloadDocument}
+                >
+                  Unduh Dokumen
+                </Button>
+              </div>
+            </div>
+
+            {/* Explanatory Banner on Bendum Verification Rule */}
+            <div className="p-3.5 bg-[#FAF7F1] border border-[#E8DFD3] rounded-2xl flex items-start gap-3 text-xs leading-relaxed text-[#352A28]">
+              <Wallet className="w-4 h-4 text-[#6E2639] shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-[#6E2639]">
+                  Pedoman Verifikasi Anggaran Bendahara Umum (Bendum)
+                </p>
+                <p className="text-[11px] text-[#8A817B] mt-0.5">
+                  Bendahara Umum memeriksa kewajaran dan kelayakan Rencana Anggaran Biaya (RAB) yang <strong>tercantum langsung di dalam dokumen proposal terunggah</strong> di bawah ini. Tidak ada formulir anggaran manual terpisah.
+                </p>
+              </div>
+            </div>
+
+            {/* Document Metadata Bar */}
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-[#FAF7F1]/60 border border-[#E8DFD3] text-xs">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="font-mono text-[10px] bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded">
+                  PDF
+                </span>
+                <span className="font-semibold text-[#352A28] truncate">
+                  {program.proposalFileName || 'Proposal_Kegiatan_dan_RAB_Terpadu.pdf'}
+                </span>
+              </div>
+              <span className="text-[11px] text-[#8A817B] shrink-0">
+                {((program.proposalFileSize || 2450000) / (1024 * 1024)).toFixed(2)} MB
+              </span>
+            </div>
+
+            {/* Interactive Document Preview Box */}
+            {showPreview && (
+              <div className="border border-[#E8DFD3] rounded-2xl overflow-hidden bg-[#525659]">
+                {/* Viewer Toolbar */}
+                <div className="bg-[#323639] text-[#FAF7F1] px-4 py-2 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-3">
+                    <span className="font-medium text-[11px] text-[#FAF7F1]/80">
+                      Halaman 1 dari 6
+                    </span>
+                    <span className="text-[#FAF7F1]/40">&bull;</span>
+                    <span className="text-[11px] text-[#FAF7F1]/80">
+                      Pratinjau Dokumen Naskah &amp; RAB
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(Math.max(80, previewZoom - 10))}
+                      className="p-1 rounded hover:bg-white/10 text-white cursor-pointer"
+                      title="Perkecil"
+                    >
+                      <ZoomOut className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-[11px] font-mono px-1">{previewZoom}%</span>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(Math.min(130, previewZoom + 10))}
+                      className="p-1 rounded hover:bg-white/10 text-white cursor-pointer"
+                      title="Perbesar"
+                    >
+                      <ZoomIn className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Simulated High-Fidelity Proposal & RAB Document Canvas */}
+                <div className="p-4 sm:p-6 overflow-x-auto flex justify-center bg-[#424548]/90 min-h-[380px]">
+                  <div
+                    style={{ transform: `scale(${previewZoom / 100})`, transformOrigin: 'top center' }}
+                    className="w-[520px] bg-white text-[#352A28] rounded-lg shadow-xl p-6 sm:p-8 space-y-4 text-xs transition-transform duration-150"
+                  >
+                    {/* Official Document Letterhead Header */}
+                    <div className="border-b-2 border-[#352A28] pb-3 text-center space-y-0.5">
+                      <p className="text-[10px] font-bold tracking-wider uppercase text-[#8A817B]">
+                        BADAN EKSEKUTIF MAHASISWA &bull; FAKULTAS KOMUNIKASI DAN INFORMATIKA
+                      </p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#352A28]">
+                        UNIVERSITAS MUHAMMADIYAH SURAKARTA
+                      </p>
+                      <p className="text-[9px] text-[#8A817B]">
+                        Jl. A. Yani, Pabelan, Kartasura, Surakarta 57162
+                      </p>
+                    </div>
+
+                    <div className="text-center pt-1">
+                      <h3 className="font-bold text-sm tracking-tight uppercase text-[#6E2639]">
+                        PROPOSAL KEGIATAN &amp; RENCANA ANGGARAN BIAYA (RAB)
+                      </h3>
+                      <p className="font-semibold text-xs text-[#352A28] mt-0.5">
+                        {program.title}
+                      </p>
+                      <p className="text-[10px] text-[#8A817B]">
+                        Departemen Pelaksana: {program.departemen}
+                      </p>
+                    </div>
+
+                    {/* Section I: Deskripsi Program */}
+                    <div className="space-y-1 pt-2">
+                      <h4 className="font-bold text-[11px] text-[#352A28] uppercase border-b border-[#E8DFD3] pb-0.5">
+                        I. Deskripsi &amp; Latar Belakang
+                      </h4>
+                      <p className="text-[11px] leading-relaxed text-[#352A28]/90">
+                        {program.description}
+                      </p>
+                    </div>
+
+                    {/* Section II: Waktu & Tempat */}
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-[11px] text-[#352A28] uppercase border-b border-[#E8DFD3] pb-0.5">
+                        II. Waktu &amp; Tempat Pelaksanaan
+                      </h4>
+                      <div className="grid grid-cols-2 text-[10px] text-[#352A28] gap-1">
+                        <p><strong>Hari/Tanggal:</strong> {formatDate(program.plannedDate)}</p>
+                        <p><strong>Tempat:</strong> {program.location || 'FKI UMS'}</p>
+                      </div>
+                    </div>
+
+                    {/* Section III: Rencana Anggaran Biaya (RAB) in Document */}
+                    <div className="space-y-1.5 pt-1">
+                      <div className="flex items-center justify-between border-b border-[#E8DFD3] pb-0.5">
+                        <h4 className="font-bold text-[11px] text-[#352A28] uppercase">
+                          III. Rencana Anggaran Biaya (RAB Terpadu)
+                        </h4>
+                        <span className="text-[9px] bg-[#F5EEF0] text-[#6E2639] font-bold px-1.5 py-0.2 rounded">
+                          Verifikasi Bendum
+                        </span>
+                      </div>
+
+                      <table className="w-full text-[10px] border-collapse border border-[#E8DFD3]">
+                        <thead>
+                          <tr className="bg-[#FAF7F1] text-[#352A28]">
+                            <th className="border border-[#E8DFD3] p-1 text-left">Uraian Kebutuhan</th>
+                            <th className="border border-[#E8DFD3] p-1 text-center w-12">Vol</th>
+                            <th className="border border-[#E8DFD3] p-1 text-right w-20">Harga Satuan</th>
+                            <th className="border border-[#E8DFD3] p-1 text-right w-24">Jumlah</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {program.budgetItems && program.budgetItems.length > 0 ? (
+                            program.budgetItems.map((item, idx) => (
+                              <tr key={idx} className="border-b border-[#E8DFD3]/70">
+                                <td className="border border-[#E8DFD3] p-1">{item.description}</td>
+                                <td className="border border-[#E8DFD3] p-1 text-center">{item.quantity}</td>
+                                <td className="border border-[#E8DFD3] p-1 text-right font-mono">
+                                  Rp {item.unitPrice.toLocaleString('id-ID')}
+                                </td>
+                                <td className="border border-[#E8DFD3] p-1 text-right font-mono font-medium">
+                                  Rp {item.total.toLocaleString('id-ID')}
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <>
+                              <tr>
+                                <td className="border border-[#E8DFD3] p-1">Konsumsi Panitia &amp; Pemateri</td>
+                                <td className="border border-[#E8DFD3] p-1 text-center">45 Pax</td>
+                                <td className="border border-[#E8DFD3] p-1 text-right font-mono">Rp 25.000</td>
+                                <td className="border border-[#E8DFD3] p-1 text-right font-mono">Rp 1.125.000</td>
+                              </tr>
+                              <tr>
+                                <td className="border border-[#E8DFD3] p-1">Honorarium Narasumber Profesional</td>
+                                <td className="border border-[#E8DFD3] p-1 text-center">2 Sesi</td>
+                                <td className="border border-[#E8DFD3] p-1 text-right font-mono">Rp 750.000</td>
+                                <td className="border border-[#E8DFD3] p-1 text-right font-mono">Rp 1.500.000</td>
+                              </tr>
+                              <tr>
+                                <td className="border border-[#E8DFD3] p-1">Sertifikat &amp; Modul Digital</td>
+                                <td className="border border-[#E8DFD3] p-1 text-center">45 Set</td>
+                                <td className="border border-[#E8DFD3] p-1 text-right font-mono">Rp 15.000</td>
+                                <td className="border border-[#E8DFD3] p-1 text-right font-mono">Rp 675.000</td>
+                              </tr>
+                            </>
+                          )}
+                          <tr className="bg-[#FAF7F1] font-bold">
+                            <td colSpan={3} className="border border-[#E8DFD3] p-1 text-right">
+                              Total Anggaran Diajukan:
+                            </td>
+                            <td className="border border-[#E8DFD3] p-1 text-right font-mono text-[#6E2639]">
+                              Rp {(program.totalBudget || 3300000).toLocaleString('id-ID')}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Signatures */}
+                    <div className="pt-4 grid grid-cols-2 text-center text-[10px]">
+                      <div>
+                        <p className="text-[#8A817B]">Ketua Panitia Pelaksana</p>
+                        <div className="h-10 flex items-center justify-center font-serif italic text-[#8A817B]/60 text-[9px]">
+                          (Tertanda Tangan)
+                        </div>
+                        <p className="font-bold text-[#352A28]">{program.submittedBy}</p>
+                      </div>
+                      <div>
+                        <p className="text-[#8A817B]">Mengetahui, Ketua Departemen</p>
+                        <div className="h-10 flex items-center justify-center font-serif italic text-[#8A817B]/60 text-[9px]">
+                          (Tertanda Tangan)
+                        </div>
+                        <p className="font-bold text-[#352A28]">{program.departemen.split('—')[0].trim()} BEM FKI</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Program Information Card */}
+          <div className="bg-white border border-[#E8DFD3] rounded-3xl p-5 sm:p-6 space-y-3 shadow-xs">
+            <h3 className="text-sm font-bold text-[#352A28] pb-2 border-b border-[#E8DFD3]">
+              Informasi Usulan &amp; Kategori IndoBERT
             </h3>
             <div className="space-y-3 text-xs leading-relaxed">
               <div>
-                <span className="font-semibold text-[#8A817B] block mb-0.5">Deskripsi Singkat:</span>
-                <p className="text-[#352A28] bg-[#FAF7F1]/60 p-3 rounded-lg border border-[#E8E0D7]">
+                <span className="font-semibold text-[#8A817B] block mb-1">
+                  Deskripsi Lengkap Kegiatan:
+                </span>
+                <p className="text-[#352A28] bg-[#FAF7F1]/60 p-3 rounded-2xl border border-[#E8DFD3]">
                   {program.description}
                 </p>
               </div>
 
               <div>
-                <span className="font-semibold text-[#8A817B] block mb-0.5">Latar Belakang:</span>
-                <p className="text-[#352A28] bg-[#FAF7F1]/60 p-3 rounded-lg border border-[#E8E0D7]">
-                  {program.background}
-                </p>
+                <span className="font-semibold text-[#8A817B] block mb-1">
+                  Kategori Terdeteksi (Multi-Label IndoBERT):
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {program.indobertTags && program.indobertTags.length > 0 ? (
+                    program.indobertTags.map((t, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1.5 bg-[#FAF7F1] border border-[#E8DFD3] text-[#352A28] px-2.5 py-1 rounded-xl text-xs font-medium"
+                      >
+                        <Sparkles className="w-3 h-3 text-[#6E2639]" />
+                        <span>{t.label}</span>
+                        <span className="text-[10px] text-[#6E2639] font-mono">
+                          {(t.confidence * 100).toFixed(0)}%
+                        </span>
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-xs text-[#8A817B] italic">
+                      Belum teranalisis (Layanan klasifikasi standby)
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column (5 cols): Documents & Decision Action Card */}
-        <div className="lg:col-span-5 space-y-5">
+        {/* Right Column (5 cols): Actions, Authority, Review History */}
+        <div className="lg:col-span-5 space-y-6">
           {/* Action Box */}
-          <div className="bg-white border-2 border-[#E8E0D7] rounded-xl p-5 space-y-4">
-            <div className="pb-2 border-b border-[#E8E0D7]">
-              <h3 className="text-sm font-bold text-[#352A28]">Tindakan Birokrasi</h3>
-              <p className="text-xs text-[#8A817B]">
+          <div className="bg-white border-2 border-[#E8DFD3] rounded-3xl p-5 sm:p-6 space-y-4 shadow-xs">
+            <div className="pb-2 border-b border-[#E8DFD3]">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#6E2639]" />
+                <h3 className="text-sm font-bold text-[#352A28]">
+                  Keputusan Verifikasi Birokrasi
+                </h3>
+              </div>
+              <p className="text-xs text-[#8A817B] mt-0.5">
                 {canDecide
-                  ? 'Anda memiliki hak wewenang untuk menentukan persetujuan pada tahap ini.'
+                  ? 'Anda memiliki wewenang sah untuk memutuskan verifikasi pada tahap ini.'
                   : 'Anda dalam mode pemantauan hasil verifikasi untuk tahap ini.'}
               </p>
             </div>
 
             {canDecide ? (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 <Button
                   className="w-full"
-                  onClick={() => setModalAction('APPROVE')}
+                  onClick={() => {
+                    setModalError(null);
+                    setModalAction('APPROVE');
+                  }}
                   leftIcon={<CheckCircle2 className="w-4 h-4" />}
                 >
-                  Setujui & Lanjutkan Tahap
+                  {program.status === 'BENDUM_REVIEW'
+                    ? 'Setujui Anggaran & Teruskan ke Sekum'
+                    : program.status === 'SEKUM_REVIEW'
+                      ? 'Validasi Berkas & Teruskan ke Gubernur'
+                      : 'Sahkan Usulan Program (Approval)'}
                 </Button>
 
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => setModalAction('REVISION')}
+                  onClick={() => {
+                    setModalError(null);
+                    setModalAction('REVISION');
+                  }}
                   leftIcon={<AlertCircle className="w-4 h-4 text-[#92600C]" />}
                 >
-                  Minta Revisi Proposal
+                  {program.status === 'BENDUM_REVIEW'
+                    ? 'Minta Revisi Anggaran / Proposal'
+                    : 'Minta Revisi Proposal'}
                 </Button>
 
                 <Button
                   variant="ghost"
-                  className="w-full text-[#9B2335] hover:bg-[#FDF0F1]"
-                  onClick={() => setModalAction('REJECT')}
+                  className="w-full text-[#9B2335] hover:bg-rose-50"
+                  onClick={() => {
+                    setModalError(null);
+                    setModalAction('REJECT');
+                  }}
                   leftIcon={<XCircle className="w-4 h-4 text-[#9B2335]" />}
                 >
                   Tolak Usulan Program
                 </Button>
               </div>
             ) : (
-              <div className="p-3 bg-[#FAF7F1] border border-[#E8E0D7] rounded-lg text-xs text-[#8A817B] space-y-1">
-                <p className="font-semibold text-[#352A28]">Wewenang Verifikasi:</p>
+              <div className="p-3.5 bg-[#FAF7F1] border border-[#E8DFD3] rounded-2xl text-xs text-[#8A817B] space-y-1">
+                <p className="font-semibold text-[#352A28]">Wewenang Tahap Saat Ini:</p>
                 <p>
-                  Tahap ini diverifikasi oleh pejabat terkait (Sekretaris Umum / Bendahara Umum /
-                  Gubernur BEM).
+                  {program.status === 'BENDUM_REVIEW'
+                    ? 'Tahap ini merupakan kewenangan Bendahara Umum untuk memverifikasi RAB di dokumen proposal.'
+                    : program.status === 'SEKUM_REVIEW'
+                      ? 'Tahap ini merupakan kewenangan Sekretaris Umum untuk memvalidasi kelengkapan berkas.'
+                      : program.status === 'GUBERNUR_REVIEW'
+                        ? 'Tahap ini merupakan kewenangan Gubernur BEM untuk memberikan persetujuan eksekutif final.'
+                        : 'Program ini telah selesai diverifikasi atau berstatus revisi.'}
                 </p>
               </div>
             )}
           </div>
 
-          {/* Dokumen Lampiran */}
-          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3">
-            <h3 className="text-xs font-bold text-[#352A28] uppercase tracking-wider pb-2 border-b border-[#E8E0D7]">
-              Dokumen Terlampir
-            </h3>
+          {/* Verification Audit Trail & Review History (Central Requirement B) */}
+          <div className="bg-white border border-[#E8DFD3] rounded-3xl p-5 sm:p-6 space-y-4 shadow-xs">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E8DFD3]">
+              <h3 className="text-xs font-bold text-[#352A28] uppercase tracking-wider">
+                Riwayat &amp; Catatan Verifikasi
+              </h3>
+              <span className="text-[10px] font-bold bg-[#FAF7F1] border border-[#E8DFD3] px-2 py-0.5 rounded-full text-[#8A817B]">
+                {(program.approvalHistory?.length || 0) + 1} Catatan
+              </span>
+            </div>
 
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between p-2.5 rounded-lg border border-[#E8E0D7] bg-[#FAF7F1]">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[#9B2335]" />
-                  <div>
-                    <p className="font-semibold text-[#352A28]">Proposal Lengkap</p>
-                    <p className="text-[10px] text-[#8A817B]">PDF &bull; 2.4 MB</p>
-                  </div>
+            <div className="space-y-3">
+              {/* Submission entry */}
+              <div className="p-3.5 rounded-2xl border border-[#E8DFD3] bg-[#FAF7F1]/60 text-xs space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-[#352A28]">Pengajuan Proposal Awal</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6E2639] text-white">
+                    Diajukan
+                  </span>
                 </div>
-                <button
-                  onClick={() => alert('Mengunduh dokumen proposal demo')}
-                  className="p-1.5 text-[#6E2639] hover:bg-white rounded-md border border-[#E8E0D7] cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                </button>
+                <p className="text-[11px] text-[#352A28]">
+                  Proposal dan RAB terpadu diajukan oleh <strong>{program.submittedBy}</strong> ({program.departemen}).
+                </p>
+                <span className="text-[10px] text-[#8A817B] block pt-0.5">
+                  {formatDate(program.submittedAt)}
+                </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-lg border border-[#E8E0D7] bg-[#FAF7F1]">
-                <div className="flex items-center gap-2">
-                  <FileSpreadsheet className="w-4 h-4 text-[#2D7A4F]" />
-                  <div>
-                    <p className="font-semibold text-[#352A28]">RAB Format Excel</p>
-                    <p className="text-[10px] text-[#8A817B]">XLSX &bull; 850 KB</p>
+              {/* Review History Logs */}
+              {program.approvalHistory && program.approvalHistory.length > 0 ? (
+                program.approvalHistory.map((hist) => (
+                  <div
+                    key={hist.id}
+                    className={`p-3.5 rounded-2xl border text-xs space-y-1 ${
+                      hist.action === 'APPROVED'
+                        ? 'bg-[#EDF7F1]/60 border-[#2D7A4F]/25 text-[#2D7A4F]'
+                        : hist.action === 'REVISION'
+                          ? 'bg-[#FEF8ED]/70 border-[#92600C]/25 text-[#92600C]'
+                          : 'bg-rose-50 border-rose-200 text-rose-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-[#352A28]">
+                        {hist.actorRole} ({hist.actorName})
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          hist.action === 'APPROVED'
+                            ? 'bg-[#2D7A4F] text-white'
+                            : hist.action === 'REVISION'
+                              ? 'bg-[#92600C] text-white'
+                              : 'bg-[#9B2335] text-white'
+                        }`}
+                      >
+                        {hist.action === 'APPROVED'
+                          ? 'Disetujui'
+                          : hist.action === 'REVISION'
+                            ? 'Catatan Revisi'
+                            : 'Ditolak'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#352A28] leading-relaxed">
+                      {hist.note}
+                    </p>
+                    <span className="text-[10px] text-[#8A817B] block pt-0.5">
+                      {formatDate(hist.timestamp)}
+                    </span>
                   </div>
-                </div>
-                <button
-                  onClick={() => alert('Mengunduh file RAB demo')}
-                  className="p-1.5 text-[#6E2639] hover:bg-white rounded-md border border-[#E8E0D7] cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                </button>
-              </div>
+                ))
+              ) : (
+                <p className="text-xs text-[#8A817B] italic text-center py-2">
+                  Belum ada catatan verifikasi lanjutan untuk usulan ini.
+                </p>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Confirmation Modal for Decision & Review Notes */}
       <Modal
         isOpen={modalAction !== null}
-        onClose={() => setModalAction(null)}
+        onClose={() => {
+          setModalAction(null);
+          setModalError(null);
+        }}
         title={
           modalAction === 'APPROVE'
-            ? 'Konfirmasi Persetujuan Tahap'
+            ? program.status === 'BENDUM_REVIEW'
+              ? 'Konfirmasi Persetujuan Anggaran (Bendum)'
+              : 'Konfirmasi Persetujuan Tahap'
             : modalAction === 'REVISION'
-              ? 'Konfirmasi Permintaan Revisi'
+              ? 'Konfirmasi Permintaan Revisi Anggaran / Proposal'
               : 'Konfirmasi Penolakan Usulan'
         }
         description={`Program Kerja: "${program.title}"`}
         footer={
           <>
-            <Button variant="secondary" size="sm" onClick={() => setModalAction(null)}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                setModalAction(null);
+                setModalError(null);
+              }}
+            >
               Batal
             </Button>
             <Button
@@ -373,7 +802,7 @@ export default function VerificationDetailPage({ params }: PageProps) {
               onClick={handleConfirmDecision}
             >
               {modalAction === 'APPROVE'
-                ? 'Ya, Sahkan & Lanjutkan'
+                ? 'Ya, Sahkan & Teruskan'
                 : modalAction === 'REVISION'
                   ? 'Kirim Catatan Revisi'
                   : 'Tolak Program'}
@@ -381,28 +810,39 @@ export default function VerificationDetailPage({ params }: PageProps) {
           </>
         }
       >
-        <div className="space-y-3 text-xs">
-          <p className="text-[#352A28]">
+        <div className="space-y-3.5 text-xs">
+          <p className="text-[#352A28] leading-relaxed">
             {modalAction === 'APPROVE'
-              ? 'Pastikan instrumen proposal, format administrasi, dan rincian anggaran telah memenuhi standar organisasi BEM FKI UMS sebelum melanjutkan.'
-              : 'Silakan cantumkan catatan penjelasan spesifik agar departemen pengaju dapat melakukan perbaikan secara tepat.'}
+              ? program.status === 'BENDUM_REVIEW'
+                ? 'Pastikan kelayakan pos pengeluaran dan rincian RAB pada dokumen proposal terlampir telah sesuai dengan standar anggaran BEM FKI UMS sebelum disahkan ke tahap Sekretaris Umum.'
+                : 'Pastikan seluruh dokumen dan kelayakan telah diperiksa secara menyeluruh sebelum melanjutkan ke tahapan berikutnya.'
+              : 'Harap berikan catatan evaluasi yang jelas agar departemen pengaju dapat melakukan perbaikan naskah atau anggaran proposal secara tepat.'}
           </p>
 
           <div>
-            <label className="block text-xs font-semibold text-[#352A28] mb-1">
+            <label className="block text-xs font-semibold text-[#352A28] mb-1.5">
               Catatan Resmi Birokrasi {modalAction !== 'APPROVE' && <span className="text-[#9B2335]">*</span>}
             </label>
             <textarea
               value={decisionNote}
-              onChange={(e) => setDecisionNote(e.target.value)}
+              onChange={(e) => {
+                setDecisionNote(e.target.value);
+                if (modalError) setModalError(null);
+              }}
               rows={3}
               placeholder={
                 modalAction === 'APPROVE'
-                  ? 'Catatan opsional (misal: "Dokumen telah lengkap dan terverifikasi")'
-                  : 'Rincian hal yang perlu direvisi atau alasan penolakan...'
+                  ? 'Catatan opsional (misal: "RAB pada dokumen proposal telah diverifikasi dan disetujui")'
+                  : 'Rincian catatan revisi anggaran / berkas yang harus diperbaiki pengusul...'
               }
-              className="w-full bg-white border border-[#E8E0D7] text-xs rounded-lg p-2.5 focus:outline-hidden focus:border-[#6E2639] focus:ring-2 focus:ring-[#6E2639]/15"
+              className="w-full bg-[#FAF7F1]/30 border border-[#E8DFD3] text-xs rounded-2xl p-3 focus:bg-white focus:outline-hidden focus:border-[#6E2639] focus:ring-2 focus:ring-[#6E2639]/15"
             />
+            {modalError && (
+              <p className="text-xs font-semibold text-rose-600 mt-1 flex items-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{modalError}</span>
+              </p>
+            )}
           </div>
         </div>
       </Modal>

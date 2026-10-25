@@ -11,10 +11,10 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   GUBERNUR: 'Gubernur BEM',
   SEKRETARIS_UMUM: 'Sekretaris Umum',
   BENDAHARA_UMUM: 'Bendahara Umum',
-  DEPARTEMEN_1: 'Departemen Pelaksana I',
-  DEPARTEMEN_2: 'Departemen Pelaksana II',
-  DEPARTEMEN_3: 'Departemen Pelaksana III',
-  DEPARTEMEN_4: 'Departemen Pelaksana IV',
+  DEPARTEMEN_1: 'Departemen IPO (Internal & Pengemb. Organisasi)',
+  DEPARTEMEN_2: 'Departemen KONEKS (Koneksi Eksternal)',
+  DEPARTEMEN_3: 'Departemen ADVO (Advokasi & Kesejahteraan Mahasiswa)',
+  DEPARTEMEN_4: 'Departemen VISINFO (Visual Informasi & Branding)',
 };
 
 export interface User {

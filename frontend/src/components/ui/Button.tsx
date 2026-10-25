@@ -12,21 +12,21 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const VARIANTS = {
   primary:
-    'bg-[#6E2639] hover:bg-[#4B1828] text-white shadow-xs border border-[#6E2639] hover:border-[#4B1828] focus-visible:ring-2 focus-visible:ring-[#6E2639]/30',
+    'bg-[#4E1724] hover:bg-[#380C1B] text-white shadow-xs border border-[#4E1724] hover:border-[#380C1B] focus-visible:ring-2 focus-visible:ring-[#4E1724]/30',
   secondary:
-    'bg-[#FAF7F1] hover:bg-[#F3EBDD] text-[#352A28] border border-[#E8E0D7] focus-visible:ring-2 focus-visible:ring-[#6E2639]/20',
+    'bg-white hover:bg-[#FAF7F5] text-[#22161A] border border-[#EFE8E2] shadow-xs focus-visible:ring-2 focus-visible:ring-[#4E1724]/20',
   outline:
-    'bg-white hover:bg-[#FAF7F1] text-[#6E2639] border border-[#6E2639]/40 hover:border-[#6E2639] focus-visible:ring-2 focus-visible:ring-[#6E2639]/20',
+    'bg-white hover:bg-[#FAF0F3] text-[#4E1724] border border-[#4E1724]/30 hover:border-[#4E1724] focus-visible:ring-2 focus-visible:ring-[#4E1724]/20',
   ghost:
-    'bg-transparent hover:bg-[#F5EEF0] text-[#352A28] hover:text-[#6E2639] border border-transparent',
+    'bg-transparent hover:bg-[#FAF0F3] text-[#22161A] hover:text-[#4E1724] border border-transparent',
   danger:
-    'bg-[#9B2335] hover:bg-[#7D1B2A] text-white border border-[#9B2335] focus-visible:ring-2 focus-visible:ring-[#9B2335]/30',
+    'bg-[#DC2626] hover:bg-[#B91C1C] text-white border border-[#DC2626] focus-visible:ring-2 focus-visible:ring-[#DC2626]/30',
 };
 
 const SIZES = {
-  sm: 'px-3 py-1.5 text-xs gap-1.5 rounded-md font-medium',
-  md: 'px-4 py-2 text-sm gap-2 rounded-lg font-medium',
-  lg: 'px-5 py-2.5 text-sm gap-2.5 rounded-lg font-semibold',
+  sm: 'px-3.5 py-1.5 text-xs gap-1.5 rounded-xl font-medium',
+  md: 'px-4.5 py-2 text-sm gap-2 rounded-2xl font-semibold',
+  lg: 'px-6 py-2.5 text-sm gap-2.5 rounded-2xl font-semibold',
 };
 
 export default function Button({

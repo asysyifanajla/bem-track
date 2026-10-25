@@ -1,5 +1,21 @@
 export type ProgramStatus = 'DRAFT' | 'SUBMITTED' | 'SEKUM_REVIEW' | 'BENDUM_REVIEW' | 'GUBERNUR_REVIEW' | 'APPROVED' | 'REVISION' | 'REJECTED';
-export type ProgramCategory = 'PENDIDIKAN' | 'PELATIHAN' | 'SOSIAL' | 'BUDAYA' | 'OLAHRAGA' | 'KESEHATAN' | 'LINGKUNGAN' | 'TEKNOLOGI' | 'SENI' | 'LAINNYA';
+export type ProgramCategory =
+  | 'ORGANIZATIONAL_DEVELOPMENT'
+  | 'EDUCATION_TRAINING_CAREER'
+  | 'COMMUNITY_SERVICE_RELATIONS'
+  | 'MEDIA_INFORMATION_PUBLICATION'
+  | 'ADMINISTRATION_FINANCE'
+  // Backward compatibility aliases
+  | 'PENDIDIKAN'
+  | 'PELATIHAN'
+  | 'SOSIAL'
+  | 'BUDAYA'
+  | 'OLAHRAGA'
+  | 'KESEHATAN'
+  | 'LINGKUNGAN'
+  | 'TEKNOLOGI'
+  | 'SENI'
+  | 'LAINNYA';
 
 export const PROGRAM_STATUS_LABELS: Record<ProgramStatus, string> = {
   DRAFT: 'Draft',
@@ -31,18 +47,24 @@ export interface Program {
   title: string;
   departemen: string;
   description: string;
-  background: string;
-  objectives: string;
-  targetParticipants: string;
+  background?: string;
+  objectives?: string;
+  targetParticipants?: string;
   plannedDate: string;
   endDate?: string;
-  location: string;
+  location?: string;
   status: ProgramStatus;
   categories: ProgramCategory[];
   indobertTags: IndoBERTTag[];
-  budgetItems: ProgramBudgetItem[];
-  totalBudget: number;
+  // RAB is integrated in the uploaded proposal document; budgetItems kept for legacy display if present
+  budgetItems?: ProgramBudgetItem[];
+  totalBudget?: number;
+  // Uploaded proposal document (contains detailed activity proposal and integrated RAB)
   proposalFileUrl?: string;
+  proposalFileName?: string;
+  proposalFileSize?: number;
+  proposalMimeType?: string;
+  // Legacy / optional direct RAB url
   rabFileUrl?: string;
   submittedBy: string;
   submittedAt: string;

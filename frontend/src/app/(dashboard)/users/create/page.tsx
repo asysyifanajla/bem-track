@@ -17,7 +17,7 @@ export default function CreateUserPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('demo123');
   const [role, setRole] = useState<UserRole>('DEPARTEMEN_1');
-  const [departemen, setDepartemen] = useState(DEPARTMENTS[0]);
+  const [departemen, setDepartemen] = useState<string>(DEPARTMENTS[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 

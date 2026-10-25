@@ -20,7 +20,7 @@ export default function CreateTimelineEventPage() {
   const programs = getMockPrograms();
 
   const [title, setTitle] = useState('');
-  const [departemen, setDepartemen] = useState(DEPARTMENTS[0]);
+  const [departemen, setDepartemen] = useState<string>(DEPARTMENTS[0]);
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [location, setLocation] = useState('');

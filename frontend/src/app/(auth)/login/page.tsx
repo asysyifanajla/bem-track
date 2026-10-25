@@ -64,7 +64,13 @@ export default function LoginPage() {
       case 'BENDAHARA_UMUM':
         return 'Bendum';
       case 'DEPARTEMEN_1':
-        return 'Dept. Akademik';
+        return 'Dept. IPO';
+      case 'DEPARTEMEN_2':
+        return 'Dept. KONEKS';
+      case 'DEPARTEMEN_3':
+        return 'Dept. ADVO';
+      case 'DEPARTEMEN_4':
+        return 'Dept. VISINFO';
       default:
         return 'Pengurus';
     }
@@ -411,7 +417,7 @@ export default function LoginPage() {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                {DEMO_USERS.slice(0, 4).map((u) => {
+                {DEMO_USERS.map((u) => {
                   const isSelected = selectedRole === u.role || email === u.email;
                   const label = getRoleDisplayName(u.role);
 
@@ -420,7 +426,7 @@ export default function LoginPage() {
                       key={u.id}
                       type="button"
                       onClick={() => loginAs(u)}
-                      className={`py-1.5 px-2.5 rounded-full text-[11px] font-medium transition-all cursor-pointer border text-center truncate flex items-center justify-center gap-1 ${isSelected
+                      className={`py-1.5 px-2 rounded-full text-[11px] font-medium transition-all cursor-pointer border text-center truncate flex items-center justify-center gap-1 ${isSelected
                         ? 'bg-[#FAF7F1] text-[#4B1828] border-white shadow-sm font-semibold'
                         : 'bg-black/25 hover:bg-black/40 text-[#FAF7F1]/85 border-white/10'
                         }`}

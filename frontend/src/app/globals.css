@@ -6,40 +6,41 @@
    ───────────────────────────────────────────────────────────────────── */
 
 @theme inline {
-  --color-maroon:        #6E2639;
-  --color-maroon-dark:   #4B1828;
-  --color-maroon-soft:   #8A4658;
+  --color-maroon:        #4E1724;
+  --color-maroon-dark:   #380C1B;
+  --color-maroon-soft:   #682033;
   --color-maroon-pale:   #F5EEF0;
   --color-maroon-light:  #F9F2F4;
 
   --color-cream:         #F3EBDD;
-  --color-cream-soft:    #FAF7F1;
-  --color-cream-border:  #E8E0D7;
+  --color-cream-soft:    #FAF7F5;
+  --color-cream-border:  #EFE8E2;
 
-  --color-text-primary:  #352A28;
-  --color-text-secondary:#8A817B;
-  --color-text-muted:    #B5AAA5;
+  --color-text-primary:  #22161A;
+  --color-text-secondary:#756C69;
+  --color-text-muted:    #A39893;
 
   --color-surface:       #FFFFFF;
-  --color-border:        #E8E0D7;
+  --color-border:        #EFE8E2;
 
-  --color-success:       #2D7A4F;
-  --color-success-bg:    #EDF7F1;
-  --color-warning:       #92600C;
-  --color-warning-bg:    #FEF8ED;
-  --color-danger:        #9B2335;
-  --color-danger-bg:     #FDF0F1;
-  --color-info:          #1A5F8A;
-  --color-info-bg:       #EDF4FA;
+  --color-success:       #059669;
+  --color-success-bg:    #ECFDF5;
+  --color-warning:       #B45309;
+  --color-warning-bg:    #FEF7EC;
+  --color-danger:        #DC2626;
+  --color-danger-bg:     #FEF2F2;
+  --color-info:          #6D28D9;
+  --color-info-bg:       #F5F3FF;
   --color-neutral:       #5E5E5E;
   --color-neutral-bg:    #F5F5F5;
 
   --font-sans: var(--font-inter), 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
 
-  --radius-sm:  4px;
-  --radius-md:  8px;
-  --radius-lg:  12px;
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  16px;
+  --radius-xl:  24px;
 }
 
 /* ─── Reset & Base ───────────────────────────────────────────────── */
@@ -48,8 +49,8 @@
 html { height: 100%; scroll-behavior: smooth; }
 
 body {
-  background-color: #FAF7F1;
-  color: #352A28;
+  background-color: #FAF7F5;
+  color: #22161A;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.6;

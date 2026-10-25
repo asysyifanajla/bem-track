@@ -8,26 +8,72 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://loca
 export const INDOBERT_API_URL = process.env.NEXT_PUBLIC_INDOBERT_API_URL || 'http://localhost:8000';
 
 export const DEPARTMENTS = [
-  'Departemen Akademik & Profesi',
-  'Departemen Kewirausahaan',
-  'Departemen Sosial & Kemasyarakatan',
-  'Departemen Minat & Bakat',
-  'Departemen Komunikasi & Informasi',
-  'Departemen Pengembangan Organisasi',
-];
+  'IPO — Internal dan Pengembangan Organisasi',
+  'KONEKS — Koneksi Eksternal',
+  'ADVO — Advokasi dan Kesejahteraan Mahasiswa',
+  'VISINFO — Visual Informasi dan Branding',
+] as const;
 
+export const EXECUTING_DEPARTMENTS = [
+  {
+    code: 'IPO',
+    name: 'Internal dan Pengembangan Organisasi',
+    fullName: 'IPO — Internal dan Pengembangan Organisasi',
+    shortName: 'IPO',
+  },
+  {
+    code: 'KONEKS',
+    name: 'Koneksi Eksternal',
+    fullName: 'KONEKS — Koneksi Eksternal',
+    shortName: 'KONEKS',
+  },
+  {
+    code: 'ADVO',
+    name: 'Advokasi dan Kesejahteraan Mahasiswa',
+    fullName: 'ADVO — Advokasi dan Kesejahteraan Mahasiswa',
+    shortName: 'ADVO',
+  },
+  {
+    code: 'VISINFO',
+    name: 'Visual Informasi dan Branding',
+    fullName: 'VISINFO — Visual Informasi dan Branding',
+    shortName: 'VISINFO',
+  },
+] as const;
+
+// Five IndoBERT Multi-Label Classification Categories from Thesis Proposal
 export const PROGRAM_CATEGORIES = [
-  { value: 'PENDIDIKAN', label: 'Pendidikan', color: 'indigo' },
-  { value: 'PELATIHAN', label: 'Pelatihan', color: 'violet' },
-  { value: 'SOSIAL', label: 'Sosial', color: 'emerald' },
-  { value: 'BUDAYA', label: 'Budaya', color: 'amber' },
-  { value: 'OLAHRAGA', label: 'Olahraga', color: 'sky' },
-  { value: 'KESEHATAN', label: 'Kesehatan', color: 'rose' },
-  { value: 'LINGKUNGAN', label: 'Lingkungan', color: 'green' },
-  { value: 'TEKNOLOGI', label: 'Teknologi', color: 'blue' },
-  { value: 'SENI', label: 'Seni', color: 'pink' },
-  { value: 'LAINNYA', label: 'Lainnya', color: 'slate' },
-];
+  {
+    value: 'ORGANIZATIONAL_DEVELOPMENT',
+    label: 'Organizational Development & Cadreization',
+    shortLabel: 'Pengembangan Organisasi & Kaderisasi',
+    color: 'amber',
+  },
+  {
+    value: 'EDUCATION_TRAINING_CAREER',
+    label: 'Education, Training & Career',
+    shortLabel: 'Pendidikan, Pelatihan & Karir',
+    color: 'indigo',
+  },
+  {
+    value: 'COMMUNITY_SERVICE_RELATIONS',
+    label: 'Social, Community Service & External Relations',
+    shortLabel: 'Sosial & Relasi Eksternal',
+    color: 'emerald',
+  },
+  {
+    value: 'MEDIA_INFORMATION_PUBLICATION',
+    label: 'Media, Information & Publication',
+    shortLabel: 'Media, Informasi & Publikasi',
+    color: 'rose',
+  },
+  {
+    value: 'ADMINISTRATION_FINANCE',
+    label: 'Strategic Administration & Finance',
+    shortLabel: 'Administrasi Strategis & Keuangan',
+    color: 'blue',
+  },
+] as const;
 
 export const STATUS_CONFIG = {
   DRAFT: {
@@ -91,26 +137,26 @@ export const STATUS_CONFIG = {
 export const APPROVAL_STAGES = [
   {
     id: 'DEPARTEMEN',
-    label: 'Departemen',
-    sublabel: 'Pengajuan Proker',
+    label: 'Departemen Pelaksana',
+    sublabel: 'Pengajuan Proposal & RAB',
     icon: 'Building2',
-  },
-  {
-    id: 'SEKUM',
-    label: 'Sekretaris Umum',
-    sublabel: 'Validasi Surat',
-    icon: 'FileCheck',
   },
   {
     id: 'BENDUM',
     label: 'Bendahara Umum',
-    sublabel: 'Verifikasi RAB',
+    sublabel: 'Tahap 1: Verifikasi Usulan & Anggaran (RAB)',
     icon: 'Wallet',
+  },
+  {
+    id: 'SEKUM',
+    label: 'Sekretaris Umum',
+    sublabel: 'Tahap 2: Validasi Administrasi & Berkas',
+    icon: 'FileCheck',
   },
   {
     id: 'GUBERNUR',
     label: 'Gubernur BEM',
-    sublabel: 'Persetujuan Final',
+    sublabel: 'Tahap 3: Persetujuan Eksekutif Final (Approval)',
     icon: 'ShieldCheck',
   },
 ];

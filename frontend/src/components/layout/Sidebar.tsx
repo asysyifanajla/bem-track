@@ -49,56 +49,34 @@ interface SidebarProps {
   pendingCount?: number;
 }
 
-/**
- * Determine if a sidebar nav item should be highlighted based on pathname.
- * Explicit route matching rules:
- * 1. Dashboard: highlight Dashboard only (/dashboard)
- * 2. Program Kerja list: highlight Program Kerja only (/programs)
- * 3. Ajukan Proker (/programs/create): do NOT highlight any sidebar menu
- * 4. Program detail page: do NOT highlight any sidebar menu (/programs/[id])
- * 5. Program edit page: do NOT highlight any sidebar menu (/programs/[id]/edit)
- * 6. Verifikasi: highlight on main page and detail pages (/verifications, /verifications/*)
- * 7. Other modules: highlight on corresponding module pages
- */
 function isNavItemActive(href: string, pathname: string): boolean {
   if (href === '/dashboard') {
     return pathname === '/dashboard';
   }
-
   if (href === '/programs') {
-    // Only highlight for the main program list page (/programs)
-    // /programs/create, /programs/[id], /programs/[id]/edit are NOT highlighted
     return pathname === '/programs';
   }
-
   if (href === '/verifications') {
     return pathname === '/verifications' || pathname.startsWith('/verifications/');
   }
-
   if (href === '/timeline') {
     return pathname === '/timeline' || pathname.startsWith('/timeline/');
   }
-
   if (href === '/archives') {
     return pathname === '/archives' || pathname.startsWith('/archives/');
   }
-
   if (href === '/vault') {
     return pathname === '/vault' || pathname.startsWith('/vault/');
   }
-
   if (href === '/activity-logs') {
     return pathname === '/activity-logs' || pathname.startsWith('/activity-logs/');
   }
-
   if (href === '/finance') {
     return pathname === '/finance' || pathname.startsWith('/finance/');
   }
-
   if (href === '/users') {
     return pathname === '/users' || pathname.startsWith('/users/');
   }
-
   return pathname === href;
 }
 

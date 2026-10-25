@@ -272,45 +272,37 @@ export default function ProgramDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Dokumen Pendukung */}
+          {/* Dokumen Proposal & RAB Terpadu */}
           <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3">
             <h3 className="text-xs font-bold text-[#352A28] uppercase tracking-wider pb-2 border-b border-[#E8E0D7]">
-              Dokumen Pendukung
+              Dokumen Proposal &amp; RAB Terpadu
             </h3>
 
             <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between p-2.5 rounded-lg border border-[#E8E0D7] bg-[#FAF7F1]/60">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[#9B2335]" />
-                  <div>
-                    <p className="font-semibold text-[#352A28]">Dokumen Proposal Resmi</p>
-                    <p className="text-[10px] text-[#8A817B]">Format PDF bertandatangan</p>
+              <div className="flex items-center justify-between p-3 rounded-lg border border-[#E8E0D7] bg-[#FAF7F1]/60">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <FileText className="w-5 h-5 text-[#6E2639] shrink-0" />
+                  <div className="min-w-0">
+                    <p className="font-semibold text-[#352A28] truncate">
+                      {program.proposalFileName || 'Dokumen_Proposal_dan_RAB.pdf'}
+                    </p>
+                    <p className="text-[10px] text-[#8A817B]">
+                      {((program.proposalFileSize || 2450000) / (1024 * 1024)).toFixed(2)} MB &bull; Memuat Usulan Kegiatan &amp; RAB
+                    </p>
                   </div>
                 </div>
                 <button
-                  onClick={() => alert('Mengunduh draft proposal (Simulasi demo)')}
-                  className="p-1.5 text-[#6E2639] hover:bg-white rounded-md border border-[#E8E0D7] cursor-pointer"
-                  title="Unduh"
+                  onClick={() => alert(`Mengunduh berkas proposal dan RAB: ${program.proposalFileName || 'Proposal.pdf'}`)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#6E2639] hover:bg-white rounded-md border border-[#E8E0D7] cursor-pointer shadow-2xs shrink-0"
+                  title="Unduh Berkas"
                 >
                   <Download className="w-3.5 h-3.5" />
+                  <span>Unduh</span>
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-lg border border-[#E8E0D7] bg-[#FAF7F1]/60">
-                <div className="flex items-center gap-2">
-                  <FileSpreadsheet className="w-4 h-4 text-[#2D7A4F]" />
-                  <div>
-                    <p className="font-semibold text-[#352A28]">Lampiran Detail RAB (Excel)</p>
-                    <p className="text-[10px] text-[#8A817B]">Rincian formula anggaran</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => alert('Mengunduh file RAB (Simulasi demo)')}
-                  className="p-1.5 text-[#6E2639] hover:bg-white rounded-md border border-[#E8E0D7] cursor-pointer"
-                  title="Unduh"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                </button>
+              <div className="p-2.5 rounded-lg bg-[#FAF7F1] border border-[#E8E0D7] text-[11px] text-[#8A817B] leading-relaxed">
+                Rencana Anggaran Biaya (RAB) tercantum langsung di dalam dokumen proposal terunggah di atas dan diverifikasi oleh Bendahara Umum.
               </div>
             </div>
           </div>

@@ -8,11 +8,11 @@ export interface CardProps {
 }
 
 export function Card({ children, className, padding = 'md' }: CardProps) {
-  const paddings = { none: '', sm: 'p-3.5', md: 'p-5', lg: 'p-6' };
+  const paddings = { none: '', sm: 'p-4', md: 'p-6', lg: 'p-7 sm:p-8' };
   return (
     <div
       className={cn(
-        'bg-white border border-[#E8E0D7] rounded-lg transition-colors',
+        'bg-white border border-[#EFE8E2] rounded-3xl shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] transition-colors',
         paddings[padding],
         className
       )}
@@ -32,16 +32,16 @@ export interface CardHeaderProps {
 
 export function CardHeader({ title, subtitle, action, icon, className }: CardHeaderProps) {
   return (
-    <div className={cn('flex items-start justify-between gap-4 mb-4 pb-3 border-b border-[#E8E0D7]', className)}>
-      <div className="flex items-center gap-2.5">
+    <div className={cn('flex items-start justify-between gap-4 mb-4 pb-3.5 border-b border-[#EFE8E2]', className)}>
+      <div className="flex items-center gap-3">
         {icon && (
-          <div className="w-7 h-7 rounded-md bg-[#F5EEF0] text-[#6E2639] flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-2xl bg-[#FAF0F3] text-[#4E1724] flex items-center justify-center shrink-0">
             {icon}
           </div>
         )}
         <div>
-          <h3 className="text-sm font-semibold text-[#352A28]">{title}</h3>
-          {subtitle && <p className="text-xs text-[#8A817B] mt-0.5">{subtitle}</p>}
+          <h3 className="text-sm font-bold text-[#22161A] tracking-tight">{title}</h3>
+          {subtitle && <p className="text-xs text-[#756C69] mt-0.5">{subtitle}</p>}
         </div>
       </div>
       {action && <div className="shrink-0">{action}</div>}
@@ -67,28 +67,28 @@ export function StatCard({
   description,
 }: StatCardProps) {
   const changeColors = {
-    positive: 'text-[#2D7A4F] bg-[#EDF7F1]',
-    negative: 'text-[#9B2335] bg-[#FDF0F1]',
-    neutral: 'text-[#8A817B] bg-[#FAF7F1]',
+    positive: 'text-[#059669] bg-[#ECFDF5]',
+    negative: 'text-[#DC2626] bg-[#FEF2F2]',
+    neutral: 'text-[#756C69] bg-[#FAF7F5]',
   };
 
   return (
-    <div className="bg-white border border-[#E8E0D7] rounded-lg p-4.5 flex flex-col justify-between">
+    <div className="bg-white border border-[#EFE8E2] rounded-3xl p-6 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] flex flex-col justify-between">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-semibold text-[#8A817B] uppercase tracking-wider">{title}</span>
-        <div className="w-8 h-8 rounded-md bg-[#FAF7F1] text-[#6E2639] border border-[#E8E0D7] flex items-center justify-center">
+        <span className="text-xs font-semibold text-[#756C69] uppercase tracking-wider">{title}</span>
+        <div className="w-10 h-10 rounded-2xl bg-[#FBF6F0] text-[#8B263E] border border-[#F2ECE4] flex items-center justify-center">
           {icon}
         </div>
       </div>
       <div>
-        <p className="text-2xl font-bold text-[#352A28] tracking-tight">{value}</p>
+        <p className="text-2xl font-bold text-[#22161A] tracking-tight">{value}</p>
         <div className="flex items-center gap-2 mt-1.5">
           {change && (
-            <span className={cn('text-xs font-medium px-1.5 py-0.5 rounded-sm', changeColors[changeType])}>
+            <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', changeColors[changeType])}>
               {change}
             </span>
           )}
-          {description && <span className="text-xs text-[#8A817B]">{description}</span>}
+          {description && <span className="text-xs text-[#756C69]">{description}</span>}
         </div>
       </div>
     </div>
