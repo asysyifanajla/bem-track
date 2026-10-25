@@ -2,13 +2,20 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save, Send, Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
+import {
+  ArrowLeft,
+  Save,
+  Send,
+  CheckCircle2,
+  FileText,
+} from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import AutoTagPreview from './AutoTagPreview';
 import { DEPARTMENTS, PROGRAM_CATEGORIES } from '@/lib/constants';
-import { Program, ProgramBudgetItem, ProgramCategory } from '@/types/program';
+import { Program, ProgramCategory, ProgramStatus } from '@/types/program';
 import { getMockPrograms, saveMockPrograms, addMockActivityLog } from '@/lib/mockData';
 
 interface ProgramFormProps {
@@ -29,14 +36,6 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
     initialData?.description ||
       'Pelatihan pembuatan dan penyuntingan video profil organisasi BEM untuk meningkatkan kemampuan anggota dalam bidang publikasi.'
   );
-  const [background, setBackground] = useState(
-    initialData?.background ||
-      'Kebutuhan representasi digital organisasi BEM FKI UMS semakin meningkat di media sosial dan kanal resmi kampus.'
-  );
-  const [objectives, setObjectives] = useState(
-    initialData?.objectives ||
-      'Meningkatkan skill videografi, motion graphics, dan public relation bagi pengurus serta mahasiswa FKI.'
-  );
   const [plannedDate, setPlannedDate] = useState(
     initialData?.plannedDate || '2026-11-15'
   );
@@ -47,51 +46,8 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
     initialData?.categories || ['PELATIHAN', 'TEKNOLOGI']
   );
 
-  const [budgetItems, setBudgetItems] = useState<ProgramBudgetItem[]>(
-    initialData?.budgetItems || [
-      { id: '1', description: 'Honorarium Pemateri Videografi', quantity: 2, unitPrice: 750000, total: 1500000 },
-      { id: '2', description: 'Konsumsi Peserta & Panitia (2 Hari)', quantity: 50, unitPrice: 25000, total: 1250000 },
-    ]
-  );
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-
-  const totalBudget = budgetItems.reduce((sum, item) => sum + item.total, 0);
-
-  const handleAddBudgetItem = () => {
-    setBudgetItems([
-      ...budgetItems,
-      {
-        id: Date.now().toString(),
-        description: '',
-        quantity: 1,
-        unitPrice: 0,
-        total: 0,
-      },
-    ]);
-  };
-
-  const handleRemoveBudgetItem = (id: string) => {
-    setBudgetItems(budgetItems.filter((item) => item.id !== id));
-  };
-
-  const handleBudgetItemChange = (
-    id: string,
-    field: 'description' | 'quantity' | 'unitPrice',
-    val: string | number
-  ) => {
-    setBudgetItems(
-      budgetItems.map((item) => {
-        if (item.id !== id) return item;
-        const updated = { ...item, [field]: val };
-        if (field === 'quantity' || field === 'unitPrice') {
-          updated.total = Number(updated.quantity) * Number(updated.unitPrice);
-        }
-        return updated;
-      })
-    );
-  };
 
   const toggleCategory = (cat: ProgramCategory) => {
     if (selectedCategories.includes(cat)) {
@@ -117,14 +73,10 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
             title,
             departemen,
             description,
-            background,
-            objectives,
             plannedDate,
             location,
             categories: selectedCategories,
-            budgetItems,
-            totalBudget,
-            status: submitStatus,
+            status: (submitStatus === 'SUBMITTED' ? 'BENDUM_REVIEW' : 'DRAFT') as ProgramStatus,
             updatedAt: new Date().toISOString(),
           };
         }
@@ -136,28 +88,29 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
         userRole: 'DEPARTEMEN',
         action: `Memperbarui Program Kerja: ${title}`,
         module: 'Programs',
-        details: `Status diperbarui menjadi: ${submitStatus}`,
+        details: `Status diperbarui menjadi: ${submitStatus === 'SUBMITTED' ? 'BENDUM_REVIEW' : 'DRAFT'}`,
       });
     } else {
+      const targetStatus: ProgramStatus = submitStatus === 'SUBMITTED' ? 'BENDUM_REVIEW' : 'DRAFT';
       const newProgram: Program = {
         id: `PRG-2026-${(existing.length + 1).toString().padStart(3, '0')}`,
         title,
         departemen,
         description,
-        background,
-        objectives,
+        background: 'Program kerja prioritas kepengurusan BEM FKI UMS.',
+        objectives: 'Meningkatkan kapabilitas dan keterlibatan mahasiswa.',
         targetParticipants: 'Mahasiswa FKI UMS',
         plannedDate,
         location,
-        status: submitStatus,
+        status: targetStatus,
         categories: selectedCategories,
         indobertTags: selectedCategories.map((c) => ({
           label: c,
           category: c,
           confidence: 0.85,
         })),
-        budgetItems,
-        totalBudget,
+        budgetItems: [],
+        totalBudget: 0,
         submittedBy: 'Pengurus Pengaju (Demo)',
         submittedAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -169,13 +122,13 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
         userRole: 'DEPARTEMEN',
         action: `Mengajukan Program Kerja: ${title}`,
         module: 'Programs',
-        details: `ID: ${newProgram.id} dengan total anggaran Rp ${totalBudget.toLocaleString('id-ID')}`,
+        details: `ID: ${newProgram.id} diajukan ke Bendahara Umum untuk verifikasi tahap 1 (Pending Sekum)`,
       });
     }
 
     setFeedback(
       submitStatus === 'SUBMITTED'
-        ? 'Program kerja berhasil diajukan untuk verifikasi birokrasi (Tersimpan di state simulasi).'
+        ? 'Program kerja berhasil diajukan dan masuk ke Bendahara Umum untuk verifikasi tahap 1 (Pending Sekum).'
         : 'Draft program kerja berhasil disimpan.'
     );
     setIsSubmitting(false);
@@ -187,23 +140,69 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header bar */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#E8E0D7]">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8A817B] hover:text-[#352A28] cursor-pointer"
+      {/* Top Navigation Bar */}
+      <div className="flex items-center justify-between">
+        <Link
+          href="/programs"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#E8DFD3] text-xs font-semibold text-[#8A817B] hover:text-[#352A28] hover:bg-[#FAF7F1] shadow-2xs transition-colors cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Kembali ke Daftar</span>
-        </button>
-        <span className="text-xs text-[#8A817B]">
-          {isEdit ? 'Mode Sunting Program' : 'Form Pengajuan Proposal'}
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Kembali ke Daftar Program</span>
+        </Link>
+        <span className="text-[11px] font-semibold text-[#8A817B] bg-white border border-[#E8DFD3] px-3 py-1 rounded-full shadow-2xs">
+          {isEdit ? 'Mode Sunting Program' : 'Formulir Usulan Baru'}
         </span>
       </div>
 
+      {/* Hero Header Card */}
+      <div className="bg-white border border-[#E8DFD3] rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#6E2639]" />
+              <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase text-[#8A817B]">
+                Birokrasi BEM FKI UMS &bull; {isEdit ? 'Pembaruan Data' : 'Pengajuan Baru'}
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#352A28] tracking-tight">
+              {isEdit ? `Sunting Usulan: ${title}` : 'Pengajuan Usulan Program Kerja'}
+            </h1>
+            <p className="text-xs sm:text-sm text-[#8A817B] max-w-2xl leading-relaxed">
+              Lengkapi judul dan deskripsi kegiatan untuk klasifikasi multi-label otomatis IndoBERT serta tentukan jadwal &amp; lokasi pelaksanaan.
+            </p>
+          </div>
+
+          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F1] border border-[#E8DFD3] flex items-center justify-center text-[#6E2639] shrink-0 shadow-2xs">
+            <FileText className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* 2-Step Form Indicator */}
+        <div className="pt-3 border-t border-[#E8DFD3]/80 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div className="flex items-center gap-2.5 p-2 rounded-xl bg-[#F5EEF0] border border-[#6E2639]/20 text-[#6E2639]">
+            <span className="w-5 h-5 rounded-full bg-[#6E2639] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+              1
+            </span>
+            <div className="min-w-0">
+              <p className="font-semibold text-xs truncate">Informasi Pokok &amp; IndoBERT</p>
+              <p className="text-[10px] text-[#8A4658] truncate">Judul, deskripsi &amp; deteksi multi-label</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 p-2 rounded-xl bg-[#FAF7F1] border border-[#E8DFD3] text-[#352A28]">
+            <span className="w-5 h-5 rounded-full bg-[#E8DFD3] text-[#352A28] flex items-center justify-center text-[11px] font-bold shrink-0">
+              2
+            </span>
+            <div className="min-w-0">
+              <p className="font-semibold text-xs truncate">Waktu &amp; Lokasi Acara</p>
+              <p className="text-[10px] text-[#8A817B] truncate">Jadwal pelaksanaan &amp; tempat kegiatan</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {feedback && (
-        <div className="p-3 bg-[#EDF7F1] border border-[#2D7A4F]/25 rounded-lg flex items-center gap-2 text-xs font-semibold text-[#2D7A4F]">
+        <div className="p-3.5 bg-[#EDF7F1] border border-[#2D7A4F]/25 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-[#2D7A4F] shadow-2xs">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{feedback}</span>
         </div>
@@ -217,11 +216,21 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
         }}
         className="space-y-6"
       >
-        {/* Section 1: Informasi Dasar */}
-        <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-4">
-          <h3 className="text-sm font-bold text-[#352A28] pb-2 border-b border-[#E8E0D7]">
-            1. Informasi Pokok Program
-          </h3>
+        {/* Section 1: Informasi Pokok Program */}
+        <div className="bg-white border border-[#E8DFD3] rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+          <div className="pb-3 border-b border-[#E8DFD3] flex items-center justify-between">
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-[#352A28] tracking-tight">
+                1. Informasi Pokok Program
+              </h2>
+              <p className="text-xs text-[#8A817B] mt-0.5">
+                Karakteristik teks ini akan dianalisis oleh IndoBERT untuk deteksi multi-label kategori
+              </p>
+            </div>
+            <span className="text-[11px] font-semibold text-[#6E2639] bg-[#F5EEF0] px-2.5 py-0.5 rounded-full">
+              Wajib Diisi
+            </span>
+          </div>
 
           <div className="space-y-4">
             <Input
@@ -255,7 +264,7 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
                 rows={3}
                 required
                 placeholder="Jelaskan ringkasan materi, output, dan sasaran kegiatan..."
-                className="w-full bg-white border border-[#E8E0D7] text-[#352A28] placeholder-[#8A817B]/60 text-sm rounded-lg p-3 focus:outline-hidden focus:border-[#6E2639] focus:ring-2 focus:ring-[#6E2639]/15 transition-colors"
+                className="w-full bg-[#FAF7F1]/30 border border-[#E8DFD3] text-[#352A28] placeholder-[#8A817B]/60 text-sm rounded-xl p-3.5 focus:bg-white focus:outline-hidden focus:border-[#6E2639] focus:ring-2 focus:ring-[#6E2639]/15 transition-all"
               />
             </div>
 
@@ -275,10 +284,10 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
                       key={cat.value}
                       type="button"
                       onClick={() => toggleCategory(cat.value as ProgramCategory)}
-                      className={`text-xs px-2.5 py-1 rounded-full border transition-colors cursor-pointer ${
+                      className={`text-xs px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-[#6E2639] text-white border-[#6E2639]'
-                          : 'bg-[#FAF7F1] text-[#352A28] border-[#E8E0D7] hover:bg-[#F3EBDD]'
+                          ? 'bg-[#6E2639] text-white border-[#6E2639] shadow-xs'
+                          : 'bg-[#FAF7F1] text-[#352A28] border-[#E8DFD3] hover:bg-[#F3EBDD]'
                       }`}
                     >
                       {cat.label}
@@ -290,11 +299,16 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
           </div>
         </div>
 
-        {/* Section 2: Waktu, Lokasi & Tujuan */}
-        <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-4">
-          <h3 className="text-sm font-bold text-[#352A28] pb-2 border-b border-[#E8E0D7]">
-            2. Waktu, Tempat & Narasi Proposal
-          </h3>
+        {/* Section 2: Waktu & Tempat Pelaksanaan (Narasi dihapus sesuai kebutuhan) */}
+        <div className="bg-white border border-[#E8DFD3] rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+          <div className="pb-3 border-b border-[#E8DFD3]">
+            <h2 className="text-sm sm:text-base font-bold text-[#352A28] tracking-tight">
+              2. Waktu &amp; Tempat Pelaksanaan
+            </h2>
+            <p className="text-xs text-[#8A817B] mt-0.5">
+              Jadwal pelaksanaan dan tempat diselenggarakannya program kerja
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
@@ -312,124 +326,10 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
               required
             />
           </div>
-
-          <div className="space-y-4 pt-2">
-            <div>
-              <label className="block text-xs font-semibold text-[#352A28] mb-1.5">
-                Latar Belakang Kegiatan
-              </label>
-              <textarea
-                value={background}
-                onChange={(e) => setBackground(e.target.value)}
-                rows={2}
-                placeholder="Alasan diadakannya program kerja..."
-                className="w-full bg-white border border-[#E8E0D7] text-[#352A28] placeholder-[#8A817B]/60 text-sm rounded-lg p-3 focus:outline-hidden focus:border-[#6E2639] focus:ring-2 focus:ring-[#6E2639]/15 transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[#352A28] mb-1.5">
-                Tujuan & Indikator Keberhasilan
-              </label>
-              <textarea
-                value={objectives}
-                onChange={(e) => setObjectives(e.target.value)}
-                rows={2}
-                placeholder="Tujuan spesifik yang ingin dicapai..."
-                className="w-full bg-white border border-[#E8E0D7] text-[#352A28] placeholder-[#8A817B]/60 text-sm rounded-lg p-3 focus:outline-hidden focus:border-[#6E2639] focus:ring-2 focus:ring-[#6E2639]/15 transition-colors"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Section 3: Rencana Anggaran Biaya (RAB) */}
-        <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-[#E8E0D7]">
-            <div>
-              <h3 className="text-sm font-bold text-[#352A28]">3. Rencana Anggaran Biaya (RAB)</h3>
-              <p className="text-xs text-[#8A817B]">Rincian pengeluaran untuk verifikasi Bendahara Umum</p>
-            </div>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={handleAddBudgetItem}
-              leftIcon={<Plus className="w-3.5 h-3.5" />}
-            >
-              Tambah Item
-            </Button>
-          </div>
-
-          <div className="space-y-2">
-            {budgetItems.map((item) => (
-              <div
-                key={item.id}
-                className="grid grid-cols-12 gap-2 items-center bg-[#FAF7F1]/60 p-2.5 rounded-lg border border-[#E8E0D7]"
-              >
-                <div className="col-span-12 sm:col-span-5">
-                  <input
-                    type="text"
-                    value={item.description}
-                    onChange={(e) => handleBudgetItemChange(item.id, 'description', e.target.value)}
-                    placeholder="Deskripsi kebutuhan / item"
-                    className="w-full bg-white border border-[#E8E0D7] text-xs rounded-md p-1.5 focus:border-[#6E2639] focus:outline-hidden"
-                  />
-                </div>
-                <div className="col-span-4 sm:col-span-2">
-                  <input
-                    type="number"
-                    min="1"
-                    value={item.quantity}
-                    onChange={(e) =>
-                      handleBudgetItemChange(item.id, 'quantity', parseInt(e.target.value) || 0)
-                    }
-                    placeholder="Qty"
-                    className="w-full bg-white border border-[#E8E0D7] text-xs rounded-md p-1.5 focus:border-[#6E2639] focus:outline-hidden"
-                  />
-                </div>
-                <div className="col-span-5 sm:col-span-3">
-                  <input
-                    type="number"
-                    min="0"
-                    step="5000"
-                    value={item.unitPrice}
-                    onChange={(e) =>
-                      handleBudgetItemChange(item.id, 'unitPrice', parseInt(e.target.value) || 0)
-                    }
-                    placeholder="Harga Satuan (Rp)"
-                    className="w-full bg-white border border-[#E8E0D7] text-xs rounded-md p-1.5 focus:border-[#6E2639] focus:outline-hidden"
-                  />
-                </div>
-                <div className="col-span-3 sm:col-span-2 flex items-center justify-between">
-                  <span className="text-xs font-mono font-semibold text-[#352A28]">
-                    Rp {item.total.toLocaleString('id-ID')}
-                  </span>
-                  {budgetItems.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveBudgetItem(item.id)}
-                      className="text-[#8A817B] hover:text-[#9B2335] p-1"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex justify-between items-center p-3 rounded-lg bg-[#F5EEF0] border border-[#6E2639]/20">
-            <span className="text-xs font-bold text-[#6E2639] uppercase tracking-wider">
-              Total Estimasi Anggaran:
-            </span>
-            <span className="text-base font-bold text-[#6E2639] font-mono">
-              Rp {totalBudget.toLocaleString('id-ID')}
-            </span>
-          </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
           <Button
             type="button"
             variant="secondary"

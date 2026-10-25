@@ -1,58 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import {
   ClipboardList,
-  Clock,
-  FolderArchive,
   Wallet,
-  ArrowRight,
   Calendar,
-  AlertCircle,
+  Clock,
+  ArrowRight,
+  ChevronRight,
+  Sparkles,
   Plus,
-  TrendingDown,
-  TrendingUp,
 } from 'lucide-react';
-import { StatCard } from '@/components/ui/Card';
-import Badge from '@/components/ui/Badge';
-import Button from '@/components/ui/Button';
 import {
   getMockPrograms,
   getMockTransactions,
   getMockTimeline,
-  getMockArchives,
 } from '@/lib/mockData';
-import { STATUS_CONFIG } from '@/lib/constants';
 import { formatCurrency, formatDate } from '@/lib/utils';
-import { ROLE_LABELS, UserRole } from '@/types/auth';
-import { canCreateProgram } from '@/lib/permissions';
+import { STATUS_CONFIG } from '@/lib/constants';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 export default function DashboardPage() {
-  const [currentUser] = useState<{ name: string; role: string; departemen?: string } | null>(() => {
-    if (typeof window === 'undefined') return null;
-    try {
-      const saved = localStorage.getItem('bem_track_user');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
+  const currentUser = useCurrentUser();
 
   const programs = getMockPrograms();
   const transactions = getMockTransactions();
   const timeline = getMockTimeline();
-  const archives = getMockArchives();
 
-  const userRole = (currentUser?.role || 'GUBERNUR') as UserRole;
   const userName = currentUser?.name || 'Pengurus BEM';
 
-  // Metrics
+  // 1. Summary: Only Total Program Kerja & Total Saldo Kas (aggregate only)
   const totalPrograms = programs.length;
-  const pendingReview = programs.filter(
-    (p) => p.status === 'SEKUM_REVIEW' || p.status === 'BENDUM_REVIEW' || p.status === 'GUBERNUR_REVIEW'
-  ).length;
-  const totalArchives = archives.filter((a) => a.status === 'ARCHIVED').length;
 
   const totalIncome = transactions
     .filter((t) => t.type === 'INCOME')
@@ -60,240 +39,299 @@ export default function DashboardPage() {
   const totalExpense = transactions
     .filter((t) => t.type === 'EXPENSE')
     .reduce((sum, t) => sum + t.amount, 0);
-  const balance = totalIncome - totalExpense;
+  const totalBalance = totalIncome - totalExpense;
 
-  // Filter programs needing attention
-  const attentionPrograms = programs.slice(0, 4);
+  // 2. Nearest upcoming agendas (3 items)
   const upcomingAgendas = timeline.slice(0, 3);
 
-  const getStatusBadge = (status: keyof typeof STATUS_CONFIG) => {
-    const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.DRAFT;
-    const variantMap: Record<string, 'default' | 'maroon' | 'cream' | 'success' | 'warning' | 'danger' | 'info'> = {
-      DRAFT: 'default',
-      SUBMITTED: 'info',
-      SEKUM_REVIEW: 'warning',
-      BENDUM_REVIEW: 'warning',
-      GUBERNUR_REVIEW: 'maroon',
-      APPROVED: 'success',
-      REVISION: 'warning',
-      REJECTED: 'danger',
-    };
-    return (
-      <Badge variant={variantMap[status] || 'default'} dot>
-        {cfg.label}
-      </Badge>
-    );
+  // 3. Latest 4 status updates & activities (Clean list layout, NOT a table)
+  const recentUpdates = programs.slice(0, 4);
+
+  // Format short date for calendar badge
+  const formatCalendarBadge = (dateString: string) => {
+    try {
+      const d = new Date(dateString);
+      const day = d.getDate().toString().padStart(2, '0');
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      const month = monthNames[d.getMonth()] || 'Nov';
+      return { day, month };
+    } catch {
+      return { day: '08', month: 'Nov' };
+    }
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Welcome header & Quick actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-1">
-        <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold text-[#352A28] tracking-tight">
+    <div className="space-y-6 max-w-6xl mx-auto font-sans">
+      
+      {/* ======================================================== */}
+      {/* WELCOME HEADER (Identical for all roles)                 */}
+      {/* ======================================================== */}
+      <div className="bg-white border border-[#E8DFD3] rounded-2xl p-6 sm:p-7 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#6E2639]" />
+              <span className="text-[11px] font-bold tracking-wider uppercase text-[#8A817B]">
+                Sistem Informasi BEM FKI UMS &bull; Periode 2026/2027
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#352A28] tracking-tight mt-1.5">
               Selamat datang, {userName}
-            </h2>
+            </h1>
+            <p className="text-xs sm:text-sm text-[#8A817B] mt-1 max-w-2xl leading-relaxed">
+              Pantau progres program kerja, alur disposisi dokumen, dan transparansi birokrasi organisasi secara terpadu.
+            </p>
           </div>
-          <p className="text-xs sm:text-sm text-[#8A817B] mt-0.5">
-            {ROLE_LABELS[userRole]} &bull; {currentUser?.departemen || 'BEM FKI UMS Periode 2026/2027'}
-          </p>
-        </div>
 
-        <div className="flex items-center gap-2">
-          {canCreateProgram(userRole) && (
-            <Link href="/programs/create">
-              <Button size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />}>
-                Ajukan Program Baru
-              </Button>
+          <div className="shrink-0 flex items-center gap-2.5">
+            <Link
+              href="/programs/create"
+              className="inline-flex items-center gap-2 bg-[#6E2639] hover:bg-[#4B1828] text-white text-xs font-semibold px-4 py-2.5 rounded-full transition-colors shadow-xs"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Ajukan Proker</span>
             </Link>
-          )}
-          <Link href="/verifications">
-            <Button variant="secondary" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
-              Verifikasi
-            </Button>
-          </Link>
+            <Link
+              href="/programs"
+              className="inline-flex items-center gap-1.5 bg-[#FAF7F1] hover:bg-[#F3EBDD] text-[#352A28] border border-[#E8DFD3] text-xs font-semibold px-4 py-2.5 rounded-full transition-colors"
+            >
+              <span>Semua Proker</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#6E2639]" />
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* 4 Key Metrics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <StatCard
-          title="Total Program Kerja"
-          value={totalPrograms}
-          description="Periode berjalan 2026"
-          icon={<ClipboardList className="w-4 h-4 text-[#6E2639]" />}
-        />
-        <StatCard
-          title="Perlu Verifikasi"
-          value={pendingReview}
-          description="Tahap review birokrasi"
-          icon={<Clock className="w-4 h-4 text-[#92600C]" />}
-        />
-        <StatCard
-          title="Dokumen Arsip Final"
-          value={totalArchives}
-          description="Proposal & LPJ resmi"
-          icon={<FolderArchive className="w-4 h-4 text-[#2D7A4F]" />}
-        />
-        <StatCard
-          title="Saldo Kas Kas Organisasi"
-          value={formatCurrency(balance)}
-          description="Pemasukan vs Pengeluaran"
-          icon={<Wallet className="w-4 h-4 text-[#6E2639]" />}
-        />
+      {/* ======================================================== */}
+      {/* 1. SUMMARY SECTION (Only 2 compact cards as required)     */}
+      {/* ======================================================== */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        
+        {/* Card 1: Total Program Kerja */}
+        <div className="bg-white border border-[#E8DFD3] rounded-2xl p-5 sm:p-6 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8A817B]">
+              Total Program Kerja
+            </span>
+            <div className="mt-2 flex items-baseline gap-2">
+              <span className="text-3xl sm:text-4xl font-bold text-[#352A28] tracking-tight">
+                {totalPrograms}
+              </span>
+              <span className="text-xs font-medium text-[#8A817B]">
+                Program Terdaftar
+              </span>
+            </div>
+            <p className="text-xs text-[#8A817B] mt-2">
+              Periode aktif kepengurusan tahun 2026
+            </p>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F1] border border-[#E8DFD3] flex items-center justify-center text-[#6E2639] shrink-0 shadow-2xs">
+            <ClipboardList className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* Card 2: Total Saldo Kas (Aggregate balance only) */}
+        <div className="bg-white border border-[#E8DFD3] rounded-2xl p-5 sm:p-6 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8A817B]">
+              Total Saldo Kas Organisasi
+            </span>
+            <div className="mt-2">
+              <span className="text-2xl sm:text-3xl font-bold text-[#352A28] tracking-tight">
+                {formatCurrency(totalBalance)}
+              </span>
+            </div>
+            <p className="text-xs text-[#8A817B] mt-2">
+              Saldo kas aktif perbendaharaan BEM FKI UMS
+            </p>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F1] border border-[#E8DFD3] flex items-center justify-center text-[#6E2639] shrink-0 shadow-2xs">
+            <Wallet className="w-6 h-6" />
+          </div>
+        </div>
+
       </div>
 
-      {/* Main Split Layout */}
+      {/* ======================================================== */}
+      {/* 2 & 3. MAIN CONTENT: RECENT UPDATES & UPCOMING AGENDAS   */}
+      {/* ======================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column (8 cols): Programs Needing Attention Table */}
-        <div className="lg:col-span-8 space-y-4">
-          <div className="bg-white border border-[#E8E0D7] rounded-xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#E8E0D7] flex items-center justify-between bg-white">
+        
+        {/* ====================================================== */}
+        {/* 3. PEMBARUAN STATUS & AKTIVITAS TERKINI (List Layout)  */}
+        {/* ====================================================== */}
+        <div className="lg:col-span-7 bg-white border border-[#E8DFD3] rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3.5 border-b border-[#E8DFD3]">
               <div>
-                <h3 className="text-sm font-bold text-[#352A28]">
-                  Program Kerja Membutuhkan Perhatian
-                </h3>
-                <p className="text-xs text-[#8A817B] mt-0.5">
-                  Proker dalam tahap review dan konfirmasi birokrasi
-                </p>
+                <h2 className="text-sm sm:text-base font-bold text-[#352A28] tracking-tight">
+                  Pembaruan Status &amp; Aktivitas Terkini
+                </h2>
               </div>
               <Link
                 href="/programs"
-                className="text-xs font-semibold text-[#6E2639] hover:underline flex items-center gap-1"
+                className="text-xs font-semibold text-[#6E2639] hover:underline flex items-center gap-1 shrink-0"
               >
-                <span>Lihat Semua</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Semua Proker</span>
+                <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead className="bg-[#FAF7F1] border-b border-[#E8E0D7] text-[#8A817B] uppercase font-semibold">
-                  <tr>
-                    <th className="py-2.5 px-4">Nama Program</th>
-                    <th className="py-2.5 px-4">Pengaju</th>
-                    <th className="py-2.5 px-4">Status</th>
-                    <th className="py-2.5 px-4 text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E8E0D7]">
-                  {attentionPrograms.map((prog) => (
-                    <tr key={prog.id} className="hover:bg-[#FAF7F1]/50 transition-colors">
-                      <td className="py-3 px-4">
-                        <Link
-                          href={`/programs/${prog.id}`}
-                          className="font-semibold text-[#352A28] hover:text-[#6E2639] line-clamp-1"
-                        >
-                          {prog.title}
-                        </Link>
-                        <span className="text-[11px] text-[#8A817B] block mt-0.5">
-                          {prog.departemen} &bull; {formatCurrency(prog.totalBudget)}
+            {/* Clean List Items (NOT a complicated table) */}
+            <div className="divide-y divide-[#E8DFD3]/70 mt-1">
+              {recentUpdates.map((item) => {
+                const cfg = STATUS_CONFIG[item.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.DRAFT;
+                
+                // Subtle status indicator colors matching palette
+                const isApproved = item.status === 'APPROVED';
+                const isRevision = item.status === 'REVISION';
+                const statusBg = isApproved
+                  ? 'bg-[#EDF7F1] text-[#2D7A4F] border-[#2D7A4F]/20'
+                  : isRevision
+                  ? 'bg-[#FDF0F1] text-[#9B2335] border-[#9B2335]/20'
+                  : 'bg-[#FAF7F1] text-[#8A4658] border-[#8A4658]/25';
+
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/programs/${item.id}`}
+                    className="py-3.5 px-2 -mx-2 rounded-xl flex items-start justify-between gap-3 hover:bg-[#FAF7F1]/70 transition-colors group"
+                  >
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-xs sm:text-sm text-[#352A28] group-hover:text-[#6E2639] transition-colors line-clamp-1">
+                          {item.title}
                         </span>
-                      </td>
-                      <td className="py-3 px-4 text-[#352A28] font-medium whitespace-nowrap">
-                        {prog.submittedBy}
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        {getStatusBadge(prog.status as keyof typeof STATUS_CONFIG)}
-                      </td>
-                      <td className="py-3 px-4 text-right whitespace-nowrap">
-                        <Link
-                          href={`/programs/${prog.id}`}
-                          className="text-[#6E2639] font-semibold hover:underline inline-flex items-center gap-1"
-                        >
-                          Detail
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${statusBg} whitespace-nowrap`}>
+                          {cfg.label}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#8A817B] flex items-center gap-2">
+                        <span>{item.departemen}</span>
+                        <span>&bull;</span>
+                        <span>Oleh {item.submittedBy}</span>
+                      </p>
+                    </div>
+
+                    <div className="text-right shrink-0 pt-0.5">
+                      <span className="text-[11px] text-[#8A817B] block whitespace-nowrap">
+                        {formatDate(item.updatedAt || item.submittedAt)}
+                      </span>
+                      <span className="text-[10px] font-semibold text-[#6E2639] group-hover:underline inline-flex items-center gap-0.5 mt-0.5">
+                        Detail &rarr;
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
-          {/* Quick Notice Banner on IndoBERT Multi-Label */}
-          <div className="p-4 bg-white border border-[#E8E0D7] rounded-xl flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-[#FAF7F1] border border-[#E8E0D7] text-[#6E2639] shrink-0">
-              <AlertCircle className="w-4 h-4" />
-            </div>
-            <div className="text-xs">
-              <p className="font-semibold text-[#352A28]">
-                Catatan Transparansi Klasifikasi Multi-Label IndoBERT
-              </p>
-              <p className="text-[#8A817B] mt-0.5 leading-relaxed">
-                Klasifikasi kategori proposal proker menggunakan model NLP IndoBERT disiapkan untuk
-                otomasi multi-tagging. Pada tahap demo frontend, sistem berstatus standby tanpa data
-                akurasi buatan sebelum model weights diintegrasikan pada backend.
-              </p>
-            </div>
+          <div className="pt-3 mt-2 border-t border-[#E8DFD3]/70 flex items-center justify-between text-[11px] text-[#8A817B]">
+            <span>Menampilkan 4 aktivitas birokrasi terbaru</span>
+            {currentUser?.role === 'GUBERNUR' && (
+              <Link href="/activity-logs" className="text-[#6E2639] font-medium hover:underline">
+                Buka Riwayat Log &rarr;
+              </Link>
+            )}
           </div>
         </div>
 
-        {/* Right Column (4 cols): Finance Summary & Upcoming Agenda */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* Ringkasan Keuangan Kas (Authorized View) */}
-          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E8E0D7]">
-              <div>
-                <h3 className="text-xs font-bold text-[#8A817B] uppercase tracking-wider">
-                  Ringkasan Kas BEM
-                </h3>
-                <p className="text-base font-bold text-[#352A28] mt-0.5">
-                  {formatCurrency(balance)}
-                </p>
-              </div>
-              <Link href="/finance" className="text-xs font-semibold text-[#6E2639] hover:underline">
-                Kelola &rarr;
-              </Link>
-            </div>
-
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between p-2 rounded-lg bg-[#EDF7F1]/50 border border-[#2D7A4F]/15">
-                <div className="flex items-center gap-2 text-[#2D7A4F]">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  <span>Pemasukan Terverifikasi</span>
-                </div>
-                <span className="font-semibold text-[#2D7A4F]">{formatCurrency(totalIncome)}</span>
-              </div>
-
-              <div className="flex items-center justify-between p-2 rounded-lg bg-[#FDF0F1]/50 border border-[#9B2335]/15">
-                <div className="flex items-center gap-2 text-[#9B2335]">
-                  <TrendingDown className="w-3.5 h-3.5" />
-                  <span>Pengeluaran Realisasi</span>
-                </div>
-                <span className="font-semibold text-[#9B2335]">{formatCurrency(totalExpense)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Agenda Terdekat */}
-          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3.5">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E8E0D7]">
+        {/* ====================================================== */}
+        {/* 2. KALENDER & AGENDA MENDATANG (Compact Section)       */}
+        {/* ====================================================== */}
+        <div className="lg:col-span-5 bg-white border border-[#E8DFD3] rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3.5 border-b border-[#E8DFD3]">
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-[#6E2639]" />
-                <h3 className="text-xs font-bold text-[#8A817B] uppercase tracking-wider">
-                  Agenda Terdekat
-                </h3>
-              </div>
-              <Link href="/timeline" className="text-xs font-semibold text-[#6E2639] hover:underline">
-                Semua
-              </Link>
-            </div>
-
-            <div className="space-y-3">
-              {upcomingAgendas.map((evt) => (
-                <div key={evt.id} className="text-xs border-l-2 border-[#6E2639] pl-3 py-0.5">
-                  <p className="font-semibold text-[#352A28] leading-snug">{evt.title}</p>
-                  <p className="text-[11px] text-[#8A817B] mt-0.5">
-                    {formatDate(evt.startDate)} &bull; {evt.location}
+                <div className="w-7 h-7 rounded-lg bg-[#FAF7F1] border border-[#E8DFD3] flex items-center justify-center text-[#6E2639]">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm sm:text-base font-bold text-[#352A28] tracking-tight">
+                    Kalender &amp; Agenda
+                  </h2>
+                  <p className="text-xs text-[#8A817B]">
+                    Kegiatan terdekat BEM FKI UMS
                   </p>
                 </div>
-              ))}
+              </div>
+              <Link
+                href="/timeline"
+                className="text-xs font-semibold text-[#6E2639] hover:underline shrink-0"
+              >
+                Lihat Semua
+              </Link>
+            </div>
+
+            {/* Upcoming Agenda Items */}
+            <div className="space-y-3 mt-4">
+              {upcomingAgendas.map((agenda) => {
+                const { day, month } = formatCalendarBadge(agenda.startDate);
+
+                return (
+                  <div
+                    key={agenda.id}
+                    className="p-3 rounded-xl bg-[#FAF7F1]/60 border border-[#E8DFD3] flex items-start gap-3 hover:bg-[#FAF7F1] transition-colors"
+                  >
+                    {/* Compact Date Box */}
+                    <div className="w-11 h-12 rounded-xl bg-white border border-[#E8DFD3] text-center flex flex-col items-center justify-center shrink-0 shadow-2xs">
+                      <span className="text-xs font-bold text-[#6E2639] leading-none">
+                        {day}
+                      </span>
+                      <span className="text-[9px] font-bold uppercase text-[#8A817B] mt-0.5 leading-none">
+                        {month}
+                      </span>
+                    </div>
+
+                    {/* Details */}
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-xs sm:text-sm font-semibold text-[#352A28] leading-snug line-clamp-1">
+                        {agenda.title}
+                      </h3>
+                      <p className="text-[11px] text-[#8A817B] mt-0.5 line-clamp-1">
+                        {agenda.description}
+                      </p>
+                      <div className="flex items-center gap-2 text-[10px] text-[#8A817B] mt-1.5">
+                        <span className="flex items-center gap-1 text-[#352A28] font-medium">
+                          <Clock className="w-3 h-3 text-[#6E2639]" />
+                          09:00 WIB
+                        </span>
+                        <span>&bull;</span>
+                        <span className="truncate">{agenda.location}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
+
+          <div className="pt-3 mt-3 border-t border-[#E8DFD3]/70 flex items-center justify-between text-[11px] text-[#8A817B]">
+            <span>{timeline.length} agenda terjadwal semester ini</span>
+            <Link href="/timeline" className="text-[#6E2639] font-medium hover:underline">
+              Jadwal Lengkap &rarr;
+            </Link>
+          </div>
         </div>
+
       </div>
+
+      {/* ======================================================== */}
+      {/* SUBTLE TRANSPARENCY & DEMO FOOTNOTE                      */}
+      {/* ======================================================== */}
+      <div className="p-4 bg-white border border-[#E8DFD3] rounded-2xl flex items-center justify-between text-xs text-[#8A817B] shadow-xs">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-[#6E2639] shrink-0" />
+          <span>
+            BEM-Track Frontend Simulation Mode &bull; Seluruh data ringkasan disajikan berbasis mock data terstruktur untuk demonstrasi antarmuka.
+          </span>
+        </div>
+        <span className="text-[11px] font-semibold text-[#352A28] hidden md:inline">
+          BEM FKI UMS 2026
+        </span>
+      </div>
+
     </div>
   );
 }

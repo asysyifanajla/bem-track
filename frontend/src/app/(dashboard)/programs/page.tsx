@@ -8,7 +8,7 @@ import Button from '@/components/ui/Button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/Table';
 import EmptyState from '@/components/ui/EmptyState';
 import { STATUS_CONFIG, PROGRAM_CATEGORIES } from '@/lib/constants';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { formatDate } from '@/lib/utils';
 import { getMockPrograms } from '@/lib/mockData';
 import { canCreateProgram } from '@/lib/permissions';
 import { ProgramCategory } from '@/types/program';
@@ -66,10 +66,10 @@ export default function ProgramsPage() {
     switch (status) {
       case 'DRAFT': return 10;
       case 'SUBMITTED': return 25;
-      case 'SEKUM_REVIEW': return 50;
-      case 'BENDUM_REVIEW': return 75;
-      case 'GUBERNUR_REVIEW': return 90;
-      case 'APPROVED': return 100;
+      case 'BENDUM_REVIEW': return 45; // Tahap 1: Bendum (Pending Sekum)
+      case 'SEKUM_REVIEW': return 70;  // Tahap 2: Sekum (Pending Approval)
+      case 'GUBERNUR_REVIEW': return 90; // Tahap 3: Gubernur (Pending Approval)
+      case 'APPROVED': return 100; // Selesai: Approval
       case 'REVISION': return 40;
       case 'REJECTED': return 100;
       default: return 20;
@@ -82,10 +82,10 @@ export default function ProgramsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[#E8E0D7]">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#352A28] tracking-tight">
-            Program Kerja Organisasi
+            Program Kerja
           </h2>
           <p className="text-xs sm:text-sm text-[#8A817B] mt-0.5">
-            Daftar seluruh program kerja, instrumen proposal, dan progres tahapan verifikasi birokrasi
+            Daftar seluruh program kerja dan progres tahapan verifikasi birokrasi
           </p>
         </div>
 
@@ -119,11 +119,10 @@ export default function ProgramsPage() {
             className="bg-[#FAF7F1] border border-[#E8E0D7] text-xs text-[#352A28] rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-[#6E2639]"
           >
             <option value="ALL">Semua Status</option>
-            <option value="SUBMITTED">Diajukan</option>
-            <option value="SEKUM_REVIEW">Review Sekretaris</option>
-            <option value="BENDUM_REVIEW">Review Bendahara</option>
-            <option value="GUBERNUR_REVIEW">Review Gubernur</option>
-            <option value="APPROVED">Disetujui</option>
+            <option value="BENDUM_REVIEW">Pending Sekum</option>
+            <option value="SEKUM_REVIEW">Pending Approval (Sekum)</option>
+            <option value="GUBERNUR_REVIEW">Pending Approval (Gubernur)</option>
+            <option value="APPROVED">Approval</option>
             <option value="REVISION">Perlu Revisi</option>
             <option value="DRAFT">Draft</option>
           </select>
@@ -188,7 +187,7 @@ export default function ProgramsPage() {
                       {prog.title}
                     </Link>
                     <span className="text-[11px] text-[#8A817B]">
-                      {formatCurrency(prog.totalBudget)} &bull; {formatDate(prog.plannedDate)}
+                      {formatDate(prog.plannedDate)} &bull; {prog.location || 'FKI UMS'}
                     </span>
                   </TableCell>
 

@@ -1,18 +1,49 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import Link from 'next/link';
+import { Search, ShieldAlert, ArrowLeft } from 'lucide-react';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/Table';
 import EmptyState from '@/components/ui/EmptyState';
 import Button from '@/components/ui/Button';
 import { getMockActivityLogs } from '@/lib/mockData';
 import { formatDateTime } from '@/lib/utils';
 import { ROLE_LABELS, UserRole } from '@/types/auth';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 export default function ActivityLogsPage() {
+  const currentUser = useCurrentUser();
   const [logs] = useState(() => getMockActivityLogs());
   const [search, setSearch] = useState('');
   const [moduleFilter, setModuleFilter] = useState('ALL');
+
+  const isGubernur = currentUser.role === 'GUBERNUR';
+
+  // Role Access Guard: Exclusively accessible to GUBERNUR
+  if (!isGubernur) {
+    return (
+      <div className="bg-white border border-[#E8DFD3] rounded-2xl p-8 max-w-xl mx-auto text-center space-y-4 my-12 shadow-xs animate-fade-in">
+        <div className="w-14 h-14 rounded-2xl bg-[#FDF0F1] border border-[#9B2335]/20 text-[#9B2335] flex items-center justify-center mx-auto shadow-2xs">
+          <ShieldAlert className="w-7 h-7" />
+        </div>
+        <div className="space-y-1.5">
+          <h2 className="text-lg sm:text-xl font-bold text-[#352A28]">
+            Akses Dibatasi Khusus Gubernur BEM
+          </h2>
+          <p className="text-xs sm:text-sm text-[#8A817B] leading-relaxed max-w-md mx-auto">
+            Log Riwayat Aktivitas dan audit trail organisasi bersifat konfidensial dan hanya dapat diakses serta dikelola langsung oleh <strong>Gubernur BEM</strong>.
+          </p>
+        </div>
+        <div className="pt-2">
+          <Link href="/dashboard">
+            <Button size="sm" variant="secondary" leftIcon={<ArrowLeft className="w-3.5 h-3.5" />}>
+              Kembali ke Dashboard
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const filtered = logs.filter((log) => {
     const matchSearch =

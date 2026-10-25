@@ -5,8 +5,7 @@ export type UserRole =
   | 'DEPARTEMEN_1'
   | 'DEPARTEMEN_2'
   | 'DEPARTEMEN_3'
-  | 'DEPARTEMEN_4'
-  | 'ADMIN';
+  | 'DEPARTEMEN_4';
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   GUBERNUR: 'Gubernur BEM',
@@ -16,7 +15,6 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   DEPARTEMEN_2: 'Departemen Pelaksana II',
   DEPARTEMEN_3: 'Departemen Pelaksana III',
   DEPARTEMEN_4: 'Departemen Pelaksana IV',
-  ADMIN: 'Administrator',
 };
 
 export interface User {

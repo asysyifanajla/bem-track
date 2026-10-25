@@ -61,15 +61,6 @@ export const DEMO_USERS: (User & { passwordHint: string })[] = [
     createdAt: '2026-01-15T09:00:00Z',
     passwordHint: 'demo123',
   },
-  {
-    id: 'user-admin',
-    name: 'Admin Sistem',
-    email: 'admin@bem.ums.ac.id',
-    role: 'ADMIN',
-    departemen: 'Biro PTI',
-    createdAt: '2026-01-01T00:00:00Z',
-    passwordHint: 'demo123',
-  },
 ];
 
 // ─── Initial Realistic Programs ──────────────────────────────────────────────
@@ -85,7 +76,7 @@ export const INITIAL_PROGRAMS: Program[] = [
     plannedDate: '2026-11-15',
     endDate: '2026-11-16',
     location: 'Lab Multimedia Lantai 3 Gedung J FKI UMS',
-    status: 'SEKUM_REVIEW',
+    status: 'BENDUM_REVIEW',
     categories: ['PELATIHAN', 'TEKNOLOGI'],
     indobertTags: [
       { label: 'Pelatihan Media & Publikasi', category: 'PELATIHAN', confidence: 0.88 },
@@ -101,18 +92,8 @@ export const INITIAL_PROGRAMS: Program[] = [
     rabFileUrl: '/mock/docs/RAB_Company_Profile_Training.xlsx',
     submittedBy: 'Dian Pertiwi (Staff Kominfo)',
     submittedAt: '2026-10-18T10:30:00Z',
-    updatedAt: '2026-10-19T14:00:00Z',
-    approvalHistory: [
-      {
-        id: 'app-1',
-        stage: 'SEKUM',
-        action: 'APPROVED',
-        note: 'Dokumen kelengkapan surat pengantar dan perizinan lab sudah valid.',
-        actorName: 'Siti Rahayu',
-        actorRole: 'Sekretaris Umum',
-        timestamp: '2026-10-19T14:00:00Z',
-      },
-    ],
+    updatedAt: '2026-10-18T10:30:00Z',
+    approvalHistory: [],
   },
   {
     id: 'PRG-2026-002',
@@ -125,7 +106,7 @@ export const INITIAL_PROGRAMS: Program[] = [
     plannedDate: '2026-11-28',
     endDate: '2026-11-29',
     location: 'Auditorium Moh. Djazman Kampus 1 UMS',
-    status: 'BENDUM_REVIEW',
+    status: 'SEKUM_REVIEW',
     categories: ['PELATIHAN', 'PENDIDIKAN'],
     indobertTags: [
       { label: 'Kewirausahaan & Bisnis Mahasiswa', category: 'PELATIHAN', confidence: 0.91 },
@@ -144,12 +125,12 @@ export const INITIAL_PROGRAMS: Program[] = [
     updatedAt: '2026-10-16T11:20:00Z',
     approvalHistory: [
       {
-        id: 'app-2',
-        stage: 'SEKUM',
+        id: 'app-1',
+        stage: 'BENDUM',
         action: 'APPROVED',
-        note: 'Format proposal sesuai template BEM 2026.',
-        actorName: 'Siti Rahayu',
-        actorRole: 'Sekretaris Umum',
+        note: 'Kebutuhan dana stimulus dan honorarium pemateri telah diverifikasi dan disetujui.',
+        actorName: 'Budi Santoso',
+        actorRole: 'Bendahara Umum',
         timestamp: '2026-10-16T11:20:00Z',
       },
     ],
@@ -184,21 +165,21 @@ export const INITIAL_PROGRAMS: Program[] = [
     updatedAt: '2026-10-15T16:45:00Z',
     approvalHistory: [
       {
+        id: 'app-2',
+        stage: 'BENDUM',
+        action: 'APPROVED',
+        note: 'RAB dan rincian alokasi biaya sewa gedung telah diverifikasi.',
+        actorName: 'Budi Santoso',
+        actorRole: 'Bendahara Umum',
+        timestamp: '2026-10-12T10:00:00Z',
+      },
+      {
         id: 'app-3',
         stage: 'SEKUM',
         action: 'APPROVED',
         note: 'Dokumen administrasi dan perizinan tempat lengkap.',
         actorName: 'Siti Rahayu',
         actorRole: 'Sekretaris Umum',
-        timestamp: '2026-10-12T10:00:00Z',
-      },
-      {
-        id: 'app-4',
-        stage: 'BENDUM',
-        action: 'APPROVED',
-        note: 'RAB telah disesuaikan dengan standar biaya masukan dekanat.',
-        actorName: 'Budi Santoso',
-        actorRole: 'Bendahara Umum',
         timestamp: '2026-10-15T16:45:00Z',
       },
     ],
@@ -233,25 +214,25 @@ export const INITIAL_PROGRAMS: Program[] = [
     updatedAt: '2026-10-02T13:30:00Z',
     approvalHistory: [
       {
+        id: 'app-4',
+        stage: 'BENDUM',
+        action: 'APPROVED',
+        note: 'Anggaran disetujui bersumber dari Kas BEM & Open Donasi.',
+        actorName: 'Budi Santoso',
+        actorRole: 'Bendahara Umum',
+        timestamp: '2026-09-27T09:00:00Z',
+      },
+      {
         id: 'app-5',
         stage: 'SEKUM',
         action: 'APPROVED',
         note: 'Surat tugas dan izin kepala desa terlampir lengkap.',
         actorName: 'Siti Rahayu',
         actorRole: 'Sekretaris Umum',
-        timestamp: '2026-09-27T09:00:00Z',
-      },
-      {
-        id: 'app-6',
-        stage: 'BENDUM',
-        action: 'APPROVED',
-        note: 'Anggaran disetujui bersumber dari Kas BEM & Open Donasi.',
-        actorName: 'Budi Santoso',
-        actorRole: 'Bendahara Umum',
         timestamp: '2026-09-29T11:00:00Z',
       },
       {
-        id: 'app-7',
+        id: 'app-6',
         stage: 'GUBERNUR',
         action: 'APPROVED',
         note: 'Program sangat baik, segera koordinasikan dengan pimpinan fakultas.',
@@ -684,7 +665,7 @@ export const INITIAL_ACTIVITY_LOGS: ActivityLog[] = [
 
 // ─── LocalStorage State Helpers (Demo Mode) ──────────────────────────────────
 const STORAGE_KEYS = {
-  PROGRAMS: 'bem_track_mock_programs',
+  PROGRAMS: 'bem_track_mock_programs_v3',
   ARCHIVES: 'bem_track_mock_archives',
   VAULT: 'bem_track_mock_vault',
   FINANCE: 'bem_track_mock_finance',

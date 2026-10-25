@@ -38,7 +38,7 @@ export default function ArchivesPage() {
   const [statusFilter, setStatusFilter] = useState('ALL');
 
   const userRole = (currentUser?.role || 'GUBERNUR') as UserRole;
-  const isPrivileged = userRole === 'SEKRETARIS_UMUM' || userRole.startsWith('DEPARTEMEN') || userRole === 'ADMIN';
+  const isPrivileged = userRole === 'SEKRETARIS_UMUM' || userRole.startsWith('DEPARTEMEN');
 
   // Role visibility: Bendum & Gub only see final (ARCHIVED) documents!
   const visibleArchives = archives.filter((doc) => {

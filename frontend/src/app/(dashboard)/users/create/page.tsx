@@ -29,8 +29,8 @@ export default function CreateUserPage() {
     await new Promise((r) => setTimeout(r, 450));
 
     addMockActivityLog({
-      userName: 'Administrator',
-      userRole: 'ADMIN',
+      userName: 'Ahmad Fauzi',
+      userRole: 'GUBERNUR',
       action: `Mendaftarkan Akun Fungsionaris Baru: ${name}`,
       module: 'Users',
       details: `Role: ${ROLE_LABELS[role]} &bull; Email: ${email}`,

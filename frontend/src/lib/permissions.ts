@@ -6,8 +6,7 @@ import { UserRole } from '@/types/auth';
  * - Dep (DEPARTEMEN_1..4): Ajukan & revisi proker, pantau verifikasi, upload arsip, kelola timeline sendiri, lihat vault & ringkasan keuangan di dashboard
  * - Bendum (BENDAHARA_UMUM): Kelola kas/transaksi, verifikasi anggaran, pantau proker, lihat arsip final & vault, kelola agenda
  * - Sekum (SEKRETARIS_UMUM): Verifikasi administrasi, kelola vault organisasi, upload & kelola arsip, kelola proker & agenda
- * - Gub/Wagub (GUBERNUR): Setujui eksekutif (final), pantau semua proker & log aktivitas, lihat arsip final, vault, agenda & ringkasan keuangan
- * - Admin (ADMIN): Full administrative privileges for system maintenance
+ * - Gub/Wagub (GUBERNUR): Setujui eksekutif (final), pantau semua proker & log aktivitas, lihat arsip final, vault, agenda, ringkasan keuangan, serta kelola pengguna
  */
 
 export type AppPermission =
@@ -36,31 +35,21 @@ export type AppPermission =
   | 'timeline:view'
   | 'timeline:manage'               // Dep, Sekum, Bendum
   // Activity Logs
-  | 'activity_logs:view'            // Gub, Admin, Sekum
+  | 'activity_logs:view'            // Gub only
   // Users
   | 'users:view'
   | 'users:manage';
 
 const ROLE_PERMISSIONS: Record<UserRole, AppPermission[]> = {
-  ADMIN: [
-    'programs:view', 'programs:create', 'programs:edit', 'programs:delete',
-    'verifications:view', 'verifications:verify_admin', 'verifications:verify_budget', 'verifications:approve_final',
-    'archives:view_all', 'archives:view_final', 'archives:upload', 'archives:delete',
-    'vault:view', 'vault:manage',
-    'finance:view_summary', 'finance:manage_transactions',
-    'timeline:view', 'timeline:manage',
-    'activity_logs:view',
-    'users:view', 'users:manage',
-  ],
   GUBERNUR: [
-    'programs:view',
+    'programs:view', 'programs:create',
     'verifications:view', 'verifications:approve_final',
     'archives:view_final',
     'vault:view',
     'finance:view_summary',
     'timeline:view',
     'activity_logs:view',
-    'users:view',
+    'users:view', 'users:manage',
   ],
   SEKRETARIS_UMUM: [
     'programs:view', 'programs:create', 'programs:edit',
@@ -69,7 +58,6 @@ const ROLE_PERMISSIONS: Record<UserRole, AppPermission[]> = {
     'vault:view', 'vault:manage',
     'finance:view_summary',
     'timeline:view', 'timeline:manage',
-    'activity_logs:view',
   ],
   BENDAHARA_UMUM: [
     'programs:view', 'programs:create', 'programs:edit',
@@ -81,7 +69,6 @@ const ROLE_PERMISSIONS: Record<UserRole, AppPermission[]> = {
   ],
   DEPARTEMEN_1: [
     'programs:view', 'programs:create', 'programs:edit',
-    'verifications:view',
     'archives:view_all', 'archives:view_final', 'archives:upload',
     'vault:view',
     'finance:view_summary',
@@ -89,7 +76,6 @@ const ROLE_PERMISSIONS: Record<UserRole, AppPermission[]> = {
   ],
   DEPARTEMEN_2: [
     'programs:view', 'programs:create', 'programs:edit',
-    'verifications:view',
     'archives:view_all', 'archives:view_final', 'archives:upload',
     'vault:view',
     'finance:view_summary',
@@ -97,7 +83,6 @@ const ROLE_PERMISSIONS: Record<UserRole, AppPermission[]> = {
   ],
   DEPARTEMEN_3: [
     'programs:view', 'programs:create', 'programs:edit',
-    'verifications:view',
     'archives:view_all', 'archives:view_final', 'archives:upload',
     'vault:view',
     'finance:view_summary',
@@ -105,7 +90,6 @@ const ROLE_PERMISSIONS: Record<UserRole, AppPermission[]> = {
   ],
   DEPARTEMEN_4: [
     'programs:view', 'programs:create', 'programs:edit',
-    'verifications:view',
     'archives:view_all', 'archives:view_final', 'archives:upload',
     'vault:view',
     'finance:view_summary',

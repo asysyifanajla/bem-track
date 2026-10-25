@@ -16,10 +16,12 @@ import Stepper, { Step } from '@/components/ui/Stepper';
 import Modal from '@/components/ui/Modal';
 import { getMockPrograms, saveMockPrograms, addMockActivityLog } from '@/lib/mockData';
 import { STATUS_CONFIG } from '@/lib/constants';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { formatDate } from '@/lib/utils';
 import { canVerifyAdmin, canVerifyBudget, canApproveExecutive } from '@/lib/permissions';
 import { UserRole } from '@/types/auth';
 import { ProgramStatus } from '@/types/program';
+
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -33,9 +35,7 @@ export default function VerificationDetailPage({ params }: PageProps) {
   const [programs, setPrograms] = useState(() => getMockPrograms());
   const program = programs.find((p) => p.id === programId) || programs[0];
 
-  const currentUser = typeof window !== 'undefined'
-    ? JSON.parse(localStorage.getItem('bem_track_user') || '{}')
-    : {};
+  const currentUser = useCurrentUser();
   const userRole = (currentUser.role || 'GUBERNUR') as UserRole;
 
   // Modal decision state
@@ -44,64 +44,64 @@ export default function VerificationDetailPage({ params }: PageProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  // Stepper calculations
-  const isSekumDone = ['BENDUM_REVIEW', 'GUBERNUR_REVIEW', 'APPROVED'].includes(program.status);
-  const isBendumDone = ['GUBERNUR_REVIEW', 'APPROVED'].includes(program.status);
+  // Stepper calculations (Alur Baru: Departemen -> Bendum -> Sekum -> Gubernur)
+  const isBendumDone = ['SEKUM_REVIEW', 'GUBERNUR_REVIEW', 'APPROVED'].includes(program.status);
+  const isSekumDone = ['GUBERNUR_REVIEW', 'APPROVED'].includes(program.status);
   const isGubernurDone = program.status === 'APPROVED';
 
   const steps: Step[] = [
     {
       id: 'step-dept',
       label: 'Departemen',
-      sublabel: 'Pengajuan Proposal',
+      sublabel: 'Pengajuan Proposal / LPJ',
       status: 'completed',
       timestamp: formatDate(program.submittedAt),
       actor: program.submittedBy,
     },
     {
-      id: 'step-sekum',
-      label: 'Sekretaris Umum',
-      sublabel: 'Validasi Administrasi',
-      status: isSekumDone
-        ? 'completed'
-        : program.status === 'SEKUM_REVIEW'
-        ? 'active'
-        : program.status === 'REVISION'
-        ? 'rejected'
-        : 'pending',
-      timestamp: isSekumDone ? 'Disetujui' : undefined,
-      actor: 'Siti Rahayu',
-    },
-    {
       id: 'step-bendum',
       label: 'Bendahara Umum',
-      sublabel: 'Verifikasi Anggaran RAB',
+      sublabel: 'Tahap 1: Verifikasi Usulan & Anggaran',
       status: isBendumDone
         ? 'completed'
         : program.status === 'BENDUM_REVIEW'
-        ? 'active'
-        : 'pending',
-      timestamp: isBendumDone ? 'Disetujui' : undefined,
+          ? 'active'
+          : program.status === 'REVISION'
+            ? 'rejected'
+            : 'pending',
+      timestamp: isBendumDone ? 'Diverifikasi' : undefined,
       actor: 'Budi Santoso',
+    },
+    {
+      id: 'step-sekum',
+      label: 'Sekretaris Umum',
+      sublabel: 'Tahap 2: Validasi Administrasi & Berkas',
+      status: isSekumDone
+        ? 'completed'
+        : program.status === 'SEKUM_REVIEW'
+          ? 'active'
+          : 'pending',
+      timestamp: isSekumDone ? 'Diverifikasi' : undefined,
+      actor: 'Siti Rahayu',
     },
     {
       id: 'step-gub',
       label: 'Gubernur BEM',
-      sublabel: 'Persetujuan Eksekutif Final',
+      sublabel: 'Tahap 3: Persetujuan Eksekutif Final',
       status: isGubernurDone
         ? 'completed'
         : program.status === 'GUBERNUR_REVIEW'
-        ? 'active'
-        : 'pending',
-      timestamp: isGubernurDone ? 'Disahkan' : undefined,
+          ? 'active'
+          : 'pending',
+      timestamp: isGubernurDone ? 'Disahkan (Approval)' : undefined,
       actor: 'Ahmad Fauzi',
     },
   ];
 
   // Authority check
   const canDecide =
-    (program.status === 'SEKUM_REVIEW' && canVerifyAdmin(userRole)) ||
     (program.status === 'BENDUM_REVIEW' && canVerifyBudget(userRole)) ||
+    (program.status === 'SEKUM_REVIEW' && canVerifyAdmin(userRole)) ||
     (program.status === 'GUBERNUR_REVIEW' && canApproveExecutive(userRole));
 
   const handleConfirmDecision = async () => {
@@ -114,12 +114,12 @@ export default function VerificationDetailPage({ params }: PageProps) {
     let stageRole = 'PENGURUS';
 
     if (modalAction === 'APPROVE') {
-      if (program.status === 'SEKUM_REVIEW') {
-        nextStatus = 'BENDUM_REVIEW';
-        stageRole = 'Sekretaris Umum';
-      } else if (program.status === 'BENDUM_REVIEW') {
-        nextStatus = 'GUBERNUR_REVIEW';
+      if (program.status === 'BENDUM_REVIEW') {
+        nextStatus = 'SEKUM_REVIEW';
         stageRole = 'Bendahara Umum';
+      } else if (program.status === 'SEKUM_REVIEW') {
+        nextStatus = 'GUBERNUR_REVIEW';
+        stageRole = 'Sekretaris Umum';
       } else if (program.status === 'GUBERNUR_REVIEW') {
         nextStatus = 'APPROVED';
         stageRole = 'Gubernur BEM';
@@ -135,17 +135,17 @@ export default function VerificationDetailPage({ params }: PageProps) {
       {
         id: 'hist-' + Date.now(),
         stage:
-          program.status === 'SEKUM_REVIEW'
-            ? ('SEKUM' as const)
-            : program.status === 'BENDUM_REVIEW'
+          program.status === 'BENDUM_REVIEW'
             ? ('BENDUM' as const)
-            : ('GUBERNUR' as const),
+            : program.status === 'SEKUM_REVIEW'
+              ? ('SEKUM' as const)
+              : ('GUBERNUR' as const),
         action:
           modalAction === 'APPROVE'
             ? ('APPROVED' as const)
             : modalAction === 'REVISION'
-            ? ('REVISION' as const)
-            : ('REJECTED' as const),
+              ? ('REVISION' as const)
+              : ('REJECTED' as const),
         note: decisionNote || 'Pemeriksaan tahapan birokrasi telah diselesaikan.',
         actorName: currentUser.name || 'Pengurus BEM',
         actorRole: stageRole,
@@ -220,13 +220,6 @@ export default function VerificationDetailPage({ params }: PageProps) {
               {program.departemen} &bull; Tanggal: {formatDate(program.submittedAt)}
             </p>
           </div>
-
-          <div className="text-left sm:text-right shrink-0">
-            <span className="text-xs text-[#8A817B] block">Usulan Anggaran:</span>
-            <span className="text-xl font-bold text-[#6E2639] font-mono">
-              {formatCurrency(program.totalBudget)}
-            </span>
-          </div>
         </div>
 
         {/* Stepper Progress */}
@@ -237,7 +230,7 @@ export default function VerificationDetailPage({ params }: PageProps) {
 
       {/* Split Review Details & Documents */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column (7 cols): Deskripsi & RAB */}
+        {/* Left Column (7 cols): Deskripsi */}
         <div className="lg:col-span-7 space-y-5">
           <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3">
             <h3 className="text-sm font-bold text-[#352A28] pb-2 border-b border-[#E8E0D7]">
@@ -257,37 +250,6 @@ export default function VerificationDetailPage({ params }: PageProps) {
                   {program.background}
                 </p>
               </div>
-            </div>
-          </div>
-
-          {/* Rincian Anggaran */}
-          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3">
-            <h3 className="text-sm font-bold text-[#352A28] pb-2 border-b border-[#E8E0D7]">
-              Rincian Usulan Biaya (RAB)
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-[#FAF7F1] text-[#8A817B] uppercase font-semibold">
-                  <tr>
-                    <th className="py-2 px-3">Item Pengeluaran</th>
-                    <th className="py-2 px-3 text-center">Vol</th>
-                    <th className="py-2 px-3 text-right">Harga</th>
-                    <th className="py-2 px-3 text-right">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E8E0D7]">
-                  {program.budgetItems.map((item) => (
-                    <tr key={item.id}>
-                      <td className="py-2 px-3 font-medium text-[#352A28]">{item.description}</td>
-                      <td className="py-2 px-3 text-center">{item.quantity}</td>
-                      <td className="py-2 px-3 text-right font-mono">{formatCurrency(item.unitPrice)}</td>
-                      <td className="py-2 px-3 text-right font-mono font-semibold text-[#352A28]">
-                        {formatCurrency(item.total)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
@@ -395,8 +357,8 @@ export default function VerificationDetailPage({ params }: PageProps) {
           modalAction === 'APPROVE'
             ? 'Konfirmasi Persetujuan Tahap'
             : modalAction === 'REVISION'
-            ? 'Konfirmasi Permintaan Revisi'
-            : 'Konfirmasi Penolakan Usulan'
+              ? 'Konfirmasi Permintaan Revisi'
+              : 'Konfirmasi Penolakan Usulan'
         }
         description={`Program Kerja: "${program.title}"`}
         footer={
@@ -413,8 +375,8 @@ export default function VerificationDetailPage({ params }: PageProps) {
               {modalAction === 'APPROVE'
                 ? 'Ya, Sahkan & Lanjutkan'
                 : modalAction === 'REVISION'
-                ? 'Kirim Catatan Revisi'
-                : 'Tolak Program'}
+                  ? 'Kirim Catatan Revisi'
+                  : 'Tolak Program'}
             </Button>
           </>
         }

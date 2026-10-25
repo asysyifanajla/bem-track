@@ -5,7 +5,6 @@ import {
   Menu,
   Bell,
   Cpu,
-  ChevronDown,
   LogOut,
   CheckCircle2,
   AlertCircle,
@@ -25,6 +24,7 @@ interface TopBarProps {
   onLogout: () => void;
   onMenuToggle: () => void;
   onSwitchRole: (role: string) => void;
+  onOpenRoleModal?: () => void;
   pageTitle?: string;
 }
 
@@ -57,6 +57,7 @@ export default function TopBar({
   onLogout,
   onMenuToggle,
   onSwitchRole,
+  onOpenRoleModal,
   pageTitle,
 }: TopBarProps) {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -72,33 +73,43 @@ export default function TopBar({
       .toUpperCase();
 
   return (
-    <header className="h-16 bg-white border-b border-[#E8E0D7] flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
-      {/* Left side: Hamburger & Title */}
+    <header className="relative z-30 bg-transparent w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-2 flex items-center justify-between shrink-0">
+      {/* Left side: Mobile hamburger & subtle demo indicator */}
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuToggle}
-          className="p-1.5 rounded-lg text-[#8A817B] hover:text-[#352A28] hover:bg-[#FAF7F1] lg:hidden cursor-pointer"
+          className="p-1.5 rounded-lg text-[#8A817B] hover:text-[#352A28] bg-white border border-[#E8E0D7] hover:bg-[#FAF7F1] lg:hidden cursor-pointer shadow-2xs"
           aria-label="Buka menu navigasi"
         >
           <Menu className="w-5 h-5" />
         </button>
 
-        <div>
-          <h1 className="text-base sm:text-lg font-bold text-[#352A28] leading-tight">
-            {pageTitle || 'BEM-Track'}
-          </h1>
-          <p className="text-[11px] text-[#8A817B] hidden sm:block">
-            Sistem Informasi Birokrasi & Tracking Program Kerja
-          </p>
+        {/* Mobile title only when sidebar is drawer-hidden */}
+        <span className="font-semibold text-[#352A28] text-sm lg:hidden">{pageTitle || 'Dashboard'}</span>
+
+        {/* Desktop: subtle simulation pill without harsh banner borders */}
+        <div className="hidden lg:flex items-center gap-2 text-xs text-[#8A817B] bg-white/70 border border-[#E8E0D7] px-3 py-1.5 rounded-full shadow-2xs">
+          <span className="w-2 h-2 rounded-full bg-[#6E2639] animate-pulse" />
+          <span>
+            Simulasi Demo &bull; Aktif sebagai <strong className="text-[#352A28] font-semibold">{user.name}</strong>
+          </span>
+          {onOpenRoleModal && (
+            <button
+              onClick={onOpenRoleModal}
+              className="text-[#6E2639] hover:underline font-semibold cursor-pointer ml-1 text-[11px]"
+            >
+              (Ganti Peran)
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Right side: AI Status, Notifications, Role, Profile */}
-      <div className="flex items-center gap-2 sm:gap-3">
+      {/* Right side: AI Status, Notifications, Profile Avatar */}
+      <div className="flex items-center gap-2 sm:gap-2.5">
         {/* IndoBERT Honest Status Badge */}
         <button
           onClick={() => setShowAiModal(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-[#E8E0D7] bg-[#FAF7F1] hover:bg-[#F3EBDD]/50 transition-colors text-xs cursor-pointer group"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#E8E0D7] bg-white hover:bg-[#FAF7F1] transition-colors text-xs cursor-pointer group shadow-2xs"
           title="Status IndoBERT Classifier"
         >
           <Cpu className="w-3.5 h-3.5 text-[#6E2639]" />
@@ -111,7 +122,7 @@ export default function TopBar({
         <div className="relative">
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2 rounded-lg text-[#8A817B] hover:text-[#352A28] hover:bg-[#FAF7F1] transition-colors cursor-pointer"
+            className="relative p-2 rounded-full bg-white border border-[#E8E0D7] text-[#8A817B] hover:text-[#352A28] hover:bg-[#FAF7F1] transition-colors cursor-pointer shadow-2xs"
             aria-label="Notifikasi"
           >
             <Bell className="w-4 h-4" />
@@ -155,24 +166,15 @@ export default function TopBar({
           )}
         </div>
 
-        {/* User Profile & Demo Switcher */}
+        {/* User Profile Avatar Minimalis */}
         <div className="relative">
           <button
             onClick={() => setShowUserDropdown(!showUserDropdown)}
-            className="flex items-center gap-2 pl-2 pr-2.5 py-1.5 rounded-lg border border-[#E8E0D7] hover:border-[#6E2639]/40 bg-white transition-colors cursor-pointer group"
+            className="w-8 h-8 rounded-full bg-[#6E2639] hover:bg-[#4B1828] text-white flex items-center justify-center text-xs font-semibold shadow-xs ring-2 ring-white hover:ring-[#6E2639]/40 transition-all cursor-pointer"
+            title={`${user.name} (${ROLE_LABELS[user.role as keyof typeof ROLE_LABELS] || user.role})`}
+            aria-label="Menu profil pengguna"
           >
-            <div className="w-7 h-7 rounded-full bg-[#6E2639] text-white flex items-center justify-center text-xs font-semibold">
-              {getInitials(user.name)}
-            </div>
-            <div className="text-left hidden md:block">
-              <p className="text-xs font-semibold text-[#352A28] leading-tight truncate max-w-[120px]">
-                {user.name.split(' ')[0]}
-              </p>
-              <p className="text-[10px] text-[#8A817B] leading-none">
-                {ROLE_LABELS[user.role as keyof typeof ROLE_LABELS] || user.role}
-              </p>
-            </div>
-            <ChevronDown className="w-3.5 h-3.5 text-[#8A817B] group-hover:text-[#352A28]" />
+            {getInitials(user.name)}
           </button>
 
           {showUserDropdown && (

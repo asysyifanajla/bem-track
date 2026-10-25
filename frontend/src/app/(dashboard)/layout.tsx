@@ -8,6 +8,7 @@ import Modal from '@/components/ui/Modal';
 import { DEMO_USERS, getMockPrograms } from '@/lib/mockData';
 import { ROLE_LABELS, UserRole } from '@/types/auth';
 import { CheckCircle2 } from 'lucide-react';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -27,34 +28,11 @@ const PAGE_TITLES: Record<string, string> = {
   '/users/create': 'Tambah Akun Pengurus',
 };
 
-interface StoredUser {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  departemen?: string;
-}
-
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Lazy initialization to avoid setState in effect
-  const [user, setUser] = useState<StoredUser | null>(() => {
-    if (typeof window === 'undefined') return null;
-    try {
-      const userStr = localStorage.getItem('bem_track_user');
-      const token = localStorage.getItem('bem_track_token');
-      if (userStr && token) {
-        return JSON.parse(userStr);
-      }
-    } catch {
-      // fallback
-    }
-    // Default to Gubernur for instant demo access if unauthenticated
-    return DEMO_USERS[0];
-  });
-
+  const user = useCurrentUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [roleModalOpen, setRoleModalOpen] = useState(false);
 
@@ -71,8 +49,9 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     if (target && typeof window !== 'undefined') {
       localStorage.setItem('bem_track_token', 'demo_token_' + target.role);
       localStorage.setItem('bem_track_user', JSON.stringify(target));
-      setUser(target);
+      window.dispatchEvent(new CustomEvent('bem_track_user_changed', { detail: target }));
       setRoleModalOpen(false);
+      router.refresh();
     }
   };
 
@@ -93,7 +72,6 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     return false;
   }).length;
 
-  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-[#FAF7F1] flex text-[#352A28]">
@@ -114,29 +92,12 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
           onLogout={handleLogout}
           onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
           onSwitchRole={handleSwitchRole}
+          onOpenRoleModal={() => setRoleModalOpen(true)}
           pageTitle={pageTitle}
         />
 
-        {/* Demo Notification Banner */}
-        <div className="bg-[#FAF7F1] border-b border-[#E8E0D7] px-4 sm:px-6 py-2 flex items-center justify-between text-xs text-[#8A817B]">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#6E2639] animate-pulse" />
-            <span>
-              Mode Simulasi Antarmuka & Demo &bull; Aktif sebagai:{' '}
-              <strong className="text-[#352A28] font-semibold">{user.name}</strong> (
-              {ROLE_LABELS[user.role as keyof typeof ROLE_LABELS] || user.role})
-            </span>
-          </div>
-          <button
-            onClick={() => setRoleModalOpen(true)}
-            className="text-[#6E2639] hover:underline font-semibold cursor-pointer hidden sm:inline"
-          >
-            Ganti Peran &rarr;
-          </button>
-        </div>
-
         {/* Page Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 pb-8 pt-2 max-w-7xl w-full mx-auto">
           {children}
         </main>
       </div>

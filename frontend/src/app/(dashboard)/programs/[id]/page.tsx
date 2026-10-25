@@ -20,7 +20,8 @@ import Badge from '@/components/ui/Badge';
 import Stepper, { Step } from '@/components/ui/Stepper';
 import { getMockPrograms } from '@/lib/mockData';
 import { STATUS_CONFIG } from '@/lib/constants';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { formatDate } from '@/lib/utils';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -34,56 +35,59 @@ export default function ProgramDetailPage({ params }: PageProps) {
   const programs = getMockPrograms();
   const program = programs.find((p) => p.id === programId) || programs[0];
 
-  // Build verification stepper steps based on current status & history
-  const isSekumDone = ['BENDUM_REVIEW', 'GUBERNUR_REVIEW', 'APPROVED'].includes(program.status);
-  const isBendumDone = ['GUBERNUR_REVIEW', 'APPROVED'].includes(program.status);
+  const currentUser = useCurrentUser();
+  const isGubernur = currentUser.role === 'GUBERNUR';
+
+  // Build verification stepper steps based on current status & history (Bendum -> Sekum -> Gubernur)
+  const isBendumDone = ['SEKUM_REVIEW', 'GUBERNUR_REVIEW', 'APPROVED'].includes(program.status);
+  const isSekumDone = ['GUBERNUR_REVIEW', 'APPROVED'].includes(program.status);
   const isGubernurDone = program.status === 'APPROVED';
 
   const steps: Step[] = [
     {
       id: 'step-dept',
       label: 'Departemen',
-      sublabel: 'Pengajuan Proposal',
+      sublabel: 'Pengajuan Proposal / LPJ',
       status: 'completed',
       timestamp: formatDate(program.submittedAt),
       actor: program.submittedBy,
     },
     {
-      id: 'step-sekum',
-      label: 'Sekretaris Umum',
-      sublabel: 'Validasi Administrasi',
-      status: isSekumDone
-        ? 'completed'
-        : program.status === 'SEKUM_REVIEW'
-        ? 'active'
-        : program.status === 'REVISION'
-        ? 'rejected'
-        : 'pending',
-      timestamp: isSekumDone ? 'Terverifikasi' : undefined,
-      actor: 'Siti Rahayu',
-    },
-    {
       id: 'step-bendum',
       label: 'Bendahara Umum',
-      sublabel: 'Verifikasi RAB & Anggaran',
+      sublabel: 'Tahap 1: Verifikasi Usulan & Anggaran',
       status: isBendumDone
         ? 'completed'
         : program.status === 'BENDUM_REVIEW'
         ? 'active'
+        : program.status === 'REVISION'
+        ? 'rejected'
         : 'pending',
-      timestamp: isBendumDone ? 'Terverifikasi' : undefined,
+      timestamp: isBendumDone ? 'Diverifikasi' : undefined,
       actor: 'Budi Santoso',
+    },
+    {
+      id: 'step-sekum',
+      label: 'Sekretaris Umum',
+      sublabel: 'Tahap 2: Validasi Administrasi & Berkas',
+      status: isSekumDone
+        ? 'completed'
+        : program.status === 'SEKUM_REVIEW'
+        ? 'active'
+        : 'pending',
+      timestamp: isSekumDone ? 'Diverifikasi' : undefined,
+      actor: 'Siti Rahayu',
     },
     {
       id: 'step-gub',
       label: 'Gubernur BEM',
-      sublabel: 'Persetujuan Eksekutif Final',
+      sublabel: 'Tahap 3: Persetujuan Eksekutif Final',
       status: isGubernurDone
         ? 'completed'
         : program.status === 'GUBERNUR_REVIEW'
         ? 'active'
         : 'pending',
-      timestamp: isGubernurDone ? 'Disahkan' : undefined,
+      timestamp: isGubernurDone ? 'Disahkan (Approval)' : undefined,
       actor: 'Ahmad Fauzi',
     },
   ];
@@ -147,15 +151,6 @@ export default function ProgramDetailPage({ params }: PageProps) {
             <p className="text-xs text-[#8A817B] leading-relaxed max-w-3xl">
               {program.description}
             </p>
-          </div>
-
-          <div className="text-left sm:text-right shrink-0">
-            <span className="text-[11px] font-bold text-[#8A817B] uppercase tracking-wider block">
-              Total Anggaran
-            </span>
-            <span className="text-xl font-bold text-[#6E2639] font-mono">
-              {formatCurrency(program.totalBudget)}
-            </span>
           </div>
         </div>
 
@@ -236,43 +231,6 @@ export default function ProgramDetailPage({ params }: PageProps) {
                   {program.objectives}
                 </p>
               </div>
-            </div>
-          </div>
-
-          {/* Rincian Anggaran Biaya (RAB) Table */}
-          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E8E0D7]">
-              <h3 className="text-sm font-bold text-[#352A28]">Rincian Anggaran Biaya (RAB)</h3>
-              <span className="text-xs font-mono font-bold text-[#6E2639]">
-                {formatCurrency(program.totalBudget)}
-              </span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-[#FAF7F1] text-[#8A817B] uppercase font-semibold">
-                  <tr>
-                    <th className="py-2 px-3">Item Pengeluaran</th>
-                    <th className="py-2 px-3 text-center">Vol</th>
-                    <th className="py-2 px-3 text-right">Harga Satuan</th>
-                    <th className="py-2 px-3 text-right">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E8E0D7]">
-                  {program.budgetItems.map((item) => (
-                    <tr key={item.id}>
-                      <td className="py-2.5 px-3 font-medium text-[#352A28]">{item.description}</td>
-                      <td className="py-2.5 px-3 text-center">{item.quantity}</td>
-                      <td className="py-2.5 px-3 text-right font-mono">
-                        {formatCurrency(item.unitPrice)}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-mono font-semibold text-[#352A28]">
-                        {formatCurrency(item.total)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
@@ -357,15 +315,44 @@ export default function ProgramDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Catatan Verifikasi & Riwayat Persetujuan */}
+          {/* Log Aktivitas & Riwayat Persetujuan */}
           <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3">
-            <h3 className="text-xs font-bold text-[#352A28] uppercase tracking-wider pb-2 border-b border-[#E8E0D7]">
-              Catatan Revisi & Verifikasi
-            </h3>
+            <div className="flex items-center justify-between pb-2 border-b border-[#E8E0D7]">
+              <h3 className="text-xs font-bold text-[#352A28] uppercase tracking-wider">
+                Log Aktivitas &amp; Verifikasi Proker
+              </h3>
+              {isGubernur && (
+                <Link
+                  href="/activity-logs"
+                  className="text-[11px] font-semibold text-[#6E2639] hover:underline"
+                >
+                  Semua Log &rarr;
+                </Link>
+              )}
+            </div>
 
-            {program.approvalHistory && program.approvalHistory.length > 0 ? (
-              <div className="space-y-2.5">
-                {program.approvalHistory.map((hist) => (
+            <div className="space-y-2.5">
+              {/* Event 1: Initial Submission */}
+              <div className="p-3 rounded-lg border border-[#E8E0D7] bg-[#FAF7F1]/60 text-xs space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-[#352A28]">
+                    Pengajuan Awal Proker
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-sm bg-[#6E2639] text-white">
+                    Diajukan
+                  </span>
+                </div>
+                <p className="text-[#352A28]">
+                  Proposal diajukan oleh <strong>{program.submittedBy}</strong> ({program.departemen}).
+                </p>
+                <span className="text-[10px] text-[#8A817B] block">
+                  {formatDate(program.submittedAt)}
+                </span>
+              </div>
+
+              {/* Approval/Revision History */}
+              {program.approvalHistory && program.approvalHistory.length > 0 ? (
+                program.approvalHistory.map((hist) => (
                   <div
                     key={hist.id}
                     className={`p-3 rounded-lg border text-xs space-y-1 ${
@@ -393,13 +380,9 @@ export default function ProgramDetailPage({ params }: PageProps) {
                       {formatDate(hist.timestamp)}
                     </span>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-[#8A817B] italic">
-                Belum ada catatan verifikasi khusus pada program ini.
-              </p>
-            )}
+                ))
+              ) : null}
+            </div>
           </div>
         </div>
       </div>

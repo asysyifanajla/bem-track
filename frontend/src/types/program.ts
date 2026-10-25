@@ -4,10 +4,10 @@ export type ProgramCategory = 'PENDIDIKAN' | 'PELATIHAN' | 'SOSIAL' | 'BUDAYA' |
 export const PROGRAM_STATUS_LABELS: Record<ProgramStatus, string> = {
   DRAFT: 'Draft',
   SUBMITTED: 'Diajukan',
-  SEKUM_REVIEW: 'Review Sekretaris',
-  BENDUM_REVIEW: 'Review Bendahara',
-  GUBERNUR_REVIEW: 'Review Gubernur',
-  APPROVED: 'Disetujui',
+  BENDUM_REVIEW: 'Pending Sekum',
+  SEKUM_REVIEW: 'Pending Approval',
+  GUBERNUR_REVIEW: 'Pending Approval',
+  APPROVED: 'Approval',
   REVISION: 'Perlu Revisi',
   REJECTED: 'Ditolak',
 };

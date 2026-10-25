@@ -3,53 +3,57 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
-  Eye,
+  Clock,
+  ArrowRight,
+  ShieldCheck,
+  User,
+  Calendar,
 } from 'lucide-react';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/Table';
 import EmptyState from '@/components/ui/EmptyState';
 import { getMockPrograms } from '@/lib/mockData';
 import { STATUS_CONFIG } from '@/lib/constants';
-import { formatCurrency, formatDate } from '@/lib/utils';
-import { UserRole } from '@/types/auth';
+import { formatDate } from '@/lib/utils';
+import { UserRole, ROLE_LABELS } from '@/types/auth';
 import { canVerifyAdmin, canVerifyBudget, canApproveExecutive } from '@/lib/permissions';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 export default function VerificationsPage() {
-  const [currentUser] = useState<{ role: string; name: string } | null>(() => {
-    if (typeof window === 'undefined') return null;
-    try {
-      const saved = localStorage.getItem('bem_track_user');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
+  const currentUser = useCurrentUser();
 
-  const [stageFilter, setStageFilter] = useState<'ALL' | 'SEKUM' | 'BENDUM' | 'GUBERNUR'>('ALL');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'PENDING' | 'IN_PROGRESS' | 'APPROVED'>('ALL');
 
   const programs = getMockPrograms();
+  const userRole = currentUser?.role as UserRole;
 
   // Map programs to verification items
   const queue = programs
     .map((p) => {
       let stage: 'SEKUM' | 'BENDUM' | 'GUBERNUR' | null = null;
       let stageName = '';
-      if (p.status === 'SEKUM_REVIEW') {
-        stage = 'SEKUM';
-        stageName = 'Administrasi & Naskah Dinas';
-      } else if (p.status === 'BENDUM_REVIEW') {
+      let stageOrder = 1;
+
+      if (p.status === 'BENDUM_REVIEW') {
         stage = 'BENDUM';
-        stageName = 'Verifikasi Anggaran (RAB)';
+        stageName = '1. Review Bendahara Umum (Pending Sekum)';
+        stageOrder = 1;
+      } else if (p.status === 'SEKUM_REVIEW') {
+        stage = 'SEKUM';
+        stageName = '2. Review Sekretaris Umum (Pending Approval)';
+        stageOrder = 2;
       } else if (p.status === 'GUBERNUR_REVIEW') {
         stage = 'GUBERNUR';
-        stageName = 'Persetujuan Eksekutif Final';
+        stageName = '3. Review Gubernur BEM (Pending Approval)';
+        stageOrder = 3;
       } else if (p.status === 'APPROVED') {
         stage = 'GUBERNUR';
-        stageName = 'Disetujui Lengkap';
+        stageName = 'Selesai: Telah Disetujui Lengkap (Approval)';
+        stageOrder = 4;
       } else if (p.status === 'REVISION') {
         stage = 'BENDUM';
-        stageName = 'Dalam Perbaikan Departemen';
+        stageName = 'Catatan Revisi: Perbaikan Pengurus';
+        stageOrder = 1;
       }
 
       return {
@@ -57,22 +61,18 @@ export default function VerificationsPage() {
         programId: p.id,
         programTitle: p.title,
         departemen: p.departemen,
+        description: p.description,
         submittedBy: p.submittedBy,
         submittedAt: p.submittedAt,
+        plannedDate: p.plannedDate,
         status: p.status,
-        totalBudget: p.totalBudget,
+        categories: p.categories,
         stage,
         stageName,
+        stageOrder,
       };
     })
     .filter((item) => item.stage !== null);
-
-  const filteredQueue = queue.filter((item) => {
-    if (stageFilter === 'ALL') return true;
-    return item.stage === stageFilter;
-  });
-
-  const userRole = currentUser?.role as UserRole;
 
   const canActOn = (itemStage: string | null, status: string) => {
     if (status === 'APPROVED') return false;
@@ -81,6 +81,16 @@ export default function VerificationsPage() {
     if (itemStage === 'GUBERNUR') return canApproveExecutive(userRole);
     return false;
   };
+
+  const filteredQueue = queue.filter((item) => {
+    const isActable = canActOn(item.stage, item.status);
+    if (activeTab === 'PENDING') return isActable;
+    if (activeTab === 'IN_PROGRESS') return item.status !== 'APPROVED';
+    if (activeTab === 'APPROVED') return item.status === 'APPROVED';
+    return true;
+  });
+
+  const myPendingCount = queue.filter((item) => canActOn(item.stage, item.status)).length;
 
   const getStatusBadge = (status: keyof typeof STATUS_CONFIG) => {
     const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.DRAFT;
@@ -102,155 +112,213 @@ export default function VerificationsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[#E8E0D7]">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#352A28] tracking-tight">
-            Verifikasi Birokrasi & Persetujuan
-          </h2>
-          <p className="text-xs sm:text-sm text-[#8A817B] mt-0.5">
-            Pusat validasi bertingkat proposal kegiatan oleh Sekretaris, Bendahara, dan Gubernur BEM
-          </p>
+    <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
+      {/* Header Hero Card */}
+      <div className="bg-white border border-[#E8DFD3] rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#6E2639]" />
+              <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase text-[#8A817B]">
+                Birokrasi BEM FKI UMS &bull; Pusat Verifikasi Berjenjang
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#352A28] tracking-tight">
+              Verifikasi Usulan Proposal
+            </h1>
+            <p className="text-xs sm:text-sm text-[#8A817B] max-w-2xl leading-relaxed">
+              Alur disposisi proposal kegiatan: diverifikasi berjenjang oleh <strong>Bendahara Umum</strong> (kesiapan usulan &amp; anggaran), <strong>Sekretaris Umum</strong> (validasi administrasi &amp; berkas), dan <strong>Gubernur BEM</strong> (pengesahan final / approval).
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 bg-[#FAF7F1] border border-[#E8DFD3] px-3.5 py-2 rounded-xl shrink-0">
+            <ShieldCheck className="w-5 h-5 text-[#6E2639]" />
+            <div>
+              <p className="text-[10px] text-[#8A817B] font-medium leading-none">Akses Pejabat Peninjau</p>
+              <p className="text-xs font-bold text-[#352A28] mt-0.5">
+                {ROLE_LABELS[userRole] || currentUser?.role || 'Pejabat BEM'}
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 bg-white border border-[#E8E0D7] rounded-lg">
-          <span className="text-xs text-[#8A817B] px-2 font-medium">Peran Anda:</span>
-          <span className="text-xs font-semibold bg-[#F5EEF0] text-[#6E2639] px-2.5 py-1 rounded-md">
-            {currentUser?.role || 'PENGURUS'}
-          </span>
+        {/* 3-Stage Visual Pipeline Guide */}
+        <div className="pt-3 border-t border-[#E8DFD3]/80 grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs">
+          <div className="p-2.5 rounded-xl bg-[#FAF7F1] border border-[#E8DFD3] flex items-center gap-2.5">
+            <span className="w-6 h-6 rounded-full bg-white border border-[#E8DFD3] text-[#6E2639] flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
+              1
+            </span>
+            <div className="min-w-0">
+              <p className="font-semibold text-[#352A28] truncate">Tahap 1: Bendum</p>
+              <p className="text-[10px] text-[#8A817B] truncate">Kesiapan alokasi, anggaran &amp; usulan</p>
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-xl bg-[#FAF7F1] border border-[#E8DFD3] flex items-center gap-2.5">
+            <span className="w-6 h-6 rounded-full bg-white border border-[#E8DFD3] text-[#6E2639] flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
+              2
+            </span>
+            <div className="min-w-0">
+              <p className="font-semibold text-[#352A28] truncate">Tahap 2: Sekum</p>
+              <p className="text-[10px] text-[#8A817B] truncate">Kelengkapan berkas &amp; naskah dinas</p>
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-xl bg-[#FAF7F1] border border-[#E8DFD3] flex items-center gap-2.5">
+            <span className="w-6 h-6 rounded-full bg-white border border-[#E8DFD3] text-[#6E2639] flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
+              3
+            </span>
+            <div className="min-w-0">
+              <p className="font-semibold text-[#352A28] truncate">Tahap 3: Gubernur</p>
+              <p className="text-[10px] text-[#8A817B] truncate">Persetujuan &amp; pengesahan eksekutif</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Tabs Filter */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-[#E8E0D7] pb-3">
+      {/* Tabs Filter Bar */}
+      <div className="flex flex-wrap items-center gap-2">
         <button
-          onClick={() => setStageFilter('ALL')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-            stageFilter === 'ALL'
-              ? 'bg-[#6E2639] text-white'
-              : 'bg-white border border-[#E8E0D7] text-[#352A28] hover:bg-[#FAF7F1]'
+          onClick={() => setActiveTab('ALL')}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+            activeTab === 'ALL'
+              ? 'bg-[#6E2639] text-white shadow-xs'
+              : 'bg-white border border-[#E8DFD3] text-[#352A28] hover:bg-[#FAF7F1]'
           }`}
         >
-          Semua Tahap ({queue.length})
+          Semua Proposal ({queue.length})
+        </button>
+
+        {myPendingCount > 0 && (
+          <button
+            onClick={() => setActiveTab('PENDING')}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'PENDING'
+                ? 'bg-[#6E2639] text-white shadow-xs'
+                : 'bg-[#F5EEF0] border border-[#6E2639]/30 text-[#6E2639] hover:bg-[#F5EEF0]/80'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-[#6E2639] animate-pulse" />
+            <span>Perlu Tindakan Saya ({myPendingCount})</span>
+          </button>
+        )}
+
+        <button
+          onClick={() => setActiveTab('IN_PROGRESS')}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+            activeTab === 'IN_PROGRESS'
+              ? 'bg-[#6E2639] text-white shadow-xs'
+              : 'bg-white border border-[#E8DFD3] text-[#352A28] hover:bg-[#FAF7F1]'
+          }`}
+        >
+          Sedang Ditinjau
         </button>
 
         <button
-          onClick={() => setStageFilter('SEKUM')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-            stageFilter === 'SEKUM'
-              ? 'bg-[#6E2639] text-white'
-              : 'bg-white border border-[#E8E0D7] text-[#352A28] hover:bg-[#FAF7F1]'
+          onClick={() => setActiveTab('APPROVED')}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+            activeTab === 'APPROVED'
+              ? 'bg-[#6E2639] text-white shadow-xs'
+              : 'bg-white border border-[#E8DFD3] text-[#352A28] hover:bg-[#FAF7F1]'
           }`}
         >
-          1. Administrasi (Sekum)
-        </button>
-
-        <button
-          onClick={() => setStageFilter('BENDUM')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-            stageFilter === 'BENDUM'
-              ? 'bg-[#6E2639] text-white'
-              : 'bg-white border border-[#E8E0D7] text-[#352A28] hover:bg-[#FAF7F1]'
-          }`}
-        >
-          2. Anggaran (Bendum)
-        </button>
-
-        <button
-          onClick={() => setStageFilter('GUBERNUR')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-            stageFilter === 'GUBERNUR'
-              ? 'bg-[#6E2639] text-white'
-              : 'bg-white border border-[#E8E0D7] text-[#352A28] hover:bg-[#FAF7F1]'
-          }`}
-        >
-          3. Eksekutif (Gubernur)
+          Telah Disetujui
         </button>
       </div>
 
-      {/* Queue Table */}
+      {/* Clean Cards Pipeline List */}
       {filteredQueue.length === 0 ? (
         <EmptyState
           title="Tidak Ada Usulan dalam Antrean"
-          description="Semua proposal pada tahap verifikasi ini telah selesai diproses."
+          description="Semua proposal kegiatan pada filter ini telah selesai ditinjau."
           action={
-            <Button variant="secondary" size="sm" onClick={() => setStageFilter('ALL')}>
-              Lihat Semua Tahap
+            <Button variant="secondary" size="sm" onClick={() => setActiveTab('ALL')}>
+              Lihat Semua Proposal
             </Button>
           }
         />
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nama Program Kerja</TableHead>
-              <TableHead>Departemen / Pengaju</TableHead>
-              <TableHead>Tahap Verifikasi</TableHead>
-              <TableHead>Tanggal Pengajuan</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredQueue.map((item) => {
-              const userCanAct = canActOn(item.stage, item.status);
-              return (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <Link
-                      href={`/verifications/${item.id}`}
-                      className="font-semibold text-[#352A28] hover:text-[#6E2639] block"
-                    >
-                      {item.programTitle}
-                    </Link>
+        <div className="space-y-3.5">
+          {filteredQueue.map((item) => {
+            const userCanAct = canActOn(item.stage, item.status);
+
+            return (
+              <div
+                key={item.id}
+                className={`bg-white border rounded-2xl p-5 shadow-xs transition-all space-y-3.5 ${
+                  userCanAct
+                    ? 'border-[#6E2639]/40 ring-1 ring-[#6E2639]/15'
+                    : 'border-[#E8DFD3] hover:border-[#E8DFD3]'
+                }`}
+              >
+                {/* Card Top: ID, Status, and Priority Pill */}
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-semibold text-[#6E2639] bg-[#F5EEF0] px-2 py-0.5 rounded-sm">
+                      {item.id}
+                    </span>
                     <span className="text-[11px] text-[#8A817B]">
-                      {item.id} &bull; {formatCurrency(item.totalBudget)}
+                      Diajukan {formatDate(item.submittedAt)}
                     </span>
-                  </TableCell>
+                  </div>
 
-                  <TableCell>
-                    <p className="text-xs font-medium text-[#352A28]">{item.departemen}</p>
-                    <span className="text-[11px] text-[#8A817B]">{item.submittedBy}</span>
-                  </TableCell>
-
-                  <TableCell>
-                    <span className="text-xs font-semibold text-[#352A28] block">
-                      {item.stageName}
-                    </span>
-                    <span className="text-[10px] text-[#8A817B]">
-                      Wewenang: {item.stage === 'SEKUM' ? 'Sekum' : item.stage === 'BENDUM' ? 'Bendum' : 'Gubernur'}
-                    </span>
-                  </TableCell>
-
-                  <TableCell className="whitespace-nowrap text-xs text-[#8A817B]">
-                    {formatDate(item.submittedAt)}
-                  </TableCell>
-
-                  <TableCell className="whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    {userCanAct && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-[#FEF8ED] border border-[#92600C]/25 text-[#92600C] px-2 py-0.5 rounded-full">
+                        <Clock className="w-3 h-3" />
+                        <span>Menunggu Keputusan Anda</span>
+                      </span>
+                    )}
                     {getStatusBadge(item.status as keyof typeof STATUS_CONFIG)}
-                  </TableCell>
+                  </div>
+                </div>
 
-                  <TableCell className="text-right whitespace-nowrap">
+                {/* Card Body: Title, Description & Metadata */}
+                <div>
+                  <Link
+                    href={`/verifications/${item.id}`}
+                    className="text-base sm:text-lg font-bold text-[#352A28] hover:text-[#6E2639] transition-colors block"
+                  >
+                    {item.programTitle}
+                  </Link>
+                  <p className="text-xs text-[#8A817B] mt-1 line-clamp-2 leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+
+                {/* Card Footer Info & Direct Action */}
+                <div className="pt-3 border-t border-[#E8DFD3]/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[#8A817B]">
+                    <span className="flex items-center gap-1.5 text-[#352A28] font-medium">
+                      <User className="w-3.5 h-3.5 text-[#6E2639]" />
+                      <span>{item.departemen} &bull; {item.submittedBy}</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-[#8A817B]" />
+                      <span>Pelaksanaan: {formatDate(item.plannedDate)}</span>
+                    </span>
+                  </div>
+
+                  <div>
                     {userCanAct ? (
                       <Link href={`/verifications/${item.id}`}>
-                        <Button size="sm" variant="primary">
-                          Tinjau & Putuskan
+                        <Button size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
+                          Tinjau &amp; Putuskan
                         </Button>
                       </Link>
                     ) : (
                       <Link href={`/verifications/${item.id}`}>
-                        <Button size="sm" variant="secondary" leftIcon={<Eye className="w-3.5 h-3.5" />}>
-                          Pantau Hasil
+                        <Button size="sm" variant="secondary" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
+                          Lihat Alur
                         </Button>
                       </Link>
                     )}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );
