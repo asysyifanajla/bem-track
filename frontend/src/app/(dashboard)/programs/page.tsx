@@ -76,6 +76,33 @@ export default function ProgramsPage() {
     }
   };
 
+  const formatSimplifiedLocation = (location?: string): string => {
+    if (!location || !location.trim()) return 'FKI UMS';
+
+    let loc = location.trim();
+
+    // Ambil nama venue/tempat utama jika dipisahkan koma (contoh: "Balai Desa Pengkol, Karanggede, Boyolali" -> "Balai Desa Pengkol")
+    if (loc.includes(',')) {
+      loc = loc.split(',')[0].trim();
+    }
+
+    // Singkat penulisan lantai (contoh: "Lantai 3" -> "Lt. 3")
+    loc = loc.replace(/Lantai\s*(\d+)/gi, 'Lt. $1');
+
+    // Bersihkan detail gedung spesifik jika sudah ada nama ruangan/lab
+    loc = loc.replace(/\s+Gedung\s+[A-Za-z0-9]+/gi, '');
+
+    // Bersihkan akhiran kampus/institusi (contoh: "Kampus 1 UMS", "Kampus 2 UMS", "FKI UMS", "UMS")
+    loc = loc.replace(/\s+Kampus\s+\d+\s*(?:UMS)?/gi, '');
+    loc = loc.replace(/\s+FKI\s+UMS/gi, '');
+    loc = loc.replace(/\s+UMS$/gi, '');
+
+    // Bersihkan nama wilayah administratif di akhir jika venue utama sudah spesifik (contoh: "Karanganyar", "Boyolali")
+    loc = loc.replace(/\s+(?:Karanganyar|Boyolali|Surakarta|Sukoharjo|Klaten|Solo)$/gi, '');
+
+    return loc.trim() || location.trim();
+  };
+
   return (
     <div className="space-y-6 animate-fade-in font-sans">
       {/* Page Header */}
@@ -192,9 +219,16 @@ export default function ProgramsPage() {
                     >
                       {prog.title}
                     </Link>
-                    <span className="text-[11px] text-[#756C69]">
-                      {formatDate(prog.plannedDate)} &bull; {prog.location || 'FKI UMS'}
-                    </span>
+                    <div className="flex items-center gap-1.5 text-[11px] text-[#756C69] mt-0.5">
+                      <span className="shrink-0">{formatDate(prog.plannedDate)}</span>
+                      <span className="shrink-0">&bull;</span>
+                      <span
+                        className="truncate max-w-[220px] sm:max-w-[280px]"
+                        title={prog.location || 'FKI UMS'}
+                      >
+                        {formatSimplifiedLocation(prog.location)}
+                      </span>
+                    </div>
                   </TableCell>
 
                   <TableCell>
