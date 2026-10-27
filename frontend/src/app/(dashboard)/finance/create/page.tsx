@@ -83,41 +83,41 @@ export default function CreateFinanceTransactionPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between pb-3 border-b border-[#E8E0D7]">
+    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in font-sans">
+      <div className="flex items-center justify-between pb-3 border-b border-[#EFE8E2]">
         <button
           type="button"
           onClick={() => router.back()}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8A817B] hover:text-[#352A28] cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#756C69] hover:text-[#4E1724] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Kembali ke Kas Organisasi</span>
         </button>
-        <span className="text-xs text-[#8A817B]">Pencatatan Buku Kas</span>
+        <span className="text-xs text-[#756C69]">Pencatatan Buku Kas</span>
       </div>
 
       {feedback && (
-        <div className="p-3 bg-[#EDF7F1] border border-[#2D7A4F]/25 rounded-lg flex items-center gap-2 text-xs font-semibold text-[#2D7A4F]">
+        <div className="p-3.5 bg-[#ECFDF5] border border-[#A7F3D0]/60 rounded-2xl flex items-center gap-2.5 text-xs font-semibold text-[#059669] shadow-2xs">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{feedback}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white border border-[#EFE8E2] rounded-3xl p-6 sm:p-7 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] space-y-5">
           {/* Transaction Type Toggle */}
           <div>
-            <label className="block text-xs font-semibold text-[#352A28] mb-1.5">
-              Jenis Mutasi Kas <span className="text-[#9B2335]">*</span>
+            <label className="block text-xs font-semibold text-[#22161A] mb-1.5">
+              Jenis Mutasi Kas <span className="text-[#DC2626]">*</span>
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setType('INCOME')}
-                className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                className={`py-2.5 px-3.5 text-xs font-bold rounded-2xl border transition-all cursor-pointer ${
                   type === 'INCOME'
-                    ? 'bg-[#2D7A4F] text-white border-[#2D7A4F]'
-                    : 'bg-[#FAF7F1] text-[#352A28] border-[#E8E0D7] hover:bg-[#EDF7F1]'
+                    ? 'bg-[#059669] text-white border-[#059669] shadow-xs'
+                    : 'bg-[#FAF7F5] text-[#22161A] border-[#EFE8E2] hover:bg-[#ECFDF5]'
                 }`}
               >
                 + Pemasukan (Kas Masuk)
@@ -126,10 +126,10 @@ export default function CreateFinanceTransactionPage() {
               <button
                 type="button"
                 onClick={() => setType('EXPENSE')}
-                className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                className={`py-2.5 px-3.5 text-xs font-bold rounded-2xl border transition-all cursor-pointer ${
                   type === 'EXPENSE'
-                    ? 'bg-[#9B2335] text-white border-[#9B2335]'
-                    : 'bg-[#FAF7F1] text-[#352A28] border-[#E8E0D7] hover:bg-[#FDF0F1]'
+                    ? 'bg-[#DC2626] text-white border-[#DC2626] shadow-xs'
+                    : 'bg-[#FAF7F5] text-[#22161A] border-[#EFE8E2] hover:bg-[#FEF2F2]'
                 }`}
               >
                 - Pengeluaran (Realisasi)
@@ -138,11 +138,11 @@ export default function CreateFinanceTransactionPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#352A28] mb-1.5">
-              Nominal Transaksi (IDR) <span className="text-[#9B2335]">*</span>
+            <label className="block text-xs font-semibold text-[#22161A] mb-1.5">
+              Nominal Transaksi (IDR) <span className="text-[#DC2626]">*</span>
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8A817B]">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#756C69]">
                 Rp
               </span>
               <input
@@ -153,7 +153,7 @@ export default function CreateFinanceTransactionPage() {
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
                 required
-                className="w-full bg-white border border-[#E8E0D7] text-sm font-mono font-bold text-[#352A28] rounded-lg py-2 pl-9 pr-3 focus:outline-hidden focus:border-[#6E2639] focus:ring-2 focus:ring-[#6E2639]/15"
+                className="w-full bg-[#FAF7F5] border border-[#EFE8E2] text-sm font-mono font-bold text-[#22161A] rounded-2xl py-2.5 pl-10 pr-3.5 focus:bg-white focus:outline-hidden focus:border-[#4E1724] transition-colors"
               />
             </div>
           </div>
@@ -204,19 +204,19 @@ export default function CreateFinanceTransactionPage() {
 
           {/* Receipt Upload Note */}
           <div>
-            <label className="block text-xs font-semibold text-[#352A28] mb-1.5">
+            <label className="block text-xs font-semibold text-[#22161A] mb-1.5">
               Bukti Nota / Kwitansi Digital
             </label>
-            <div className="flex items-center gap-3 p-3 bg-[#FAF7F1] rounded-lg border border-[#E8E0D7]">
-              <FileUp className="w-5 h-5 text-[#6E2639] shrink-0" />
+            <div className="flex items-center gap-3 p-3.5 bg-[#FAF7F5] rounded-2xl border border-[#EFE8E2]">
+              <FileUp className="w-5 h-5 text-[#4E1724] shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-[#352A28] truncate">
+                <p className="text-xs font-semibold text-[#22161A] truncate">
                   {receiptFile ? receiptFile : 'Unggah foto nota, kuitansi, atau bukti transfer'}
                 </p>
-                <p className="text-[10px] text-[#8A817B]">Format JPG, PNG, atau PDF</p>
+                <p className="text-[11px] text-[#756C69]">Format JPG, PNG, atau PDF</p>
               </div>
               <label className="shrink-0">
-                <span className="px-2.5 py-1 bg-white border border-[#E8E0D7] text-xs font-semibold text-[#352A28] rounded-md hover:bg-[#FAF7F1] cursor-pointer">
+                <span className="px-3 py-1.5 bg-white border border-[#EFE8E2] text-xs font-semibold text-[#22161A] rounded-xl hover:bg-[#FAF7F5] cursor-pointer shadow-2xs transition-colors">
                   Pilih Bukti
                 </span>
                 <input

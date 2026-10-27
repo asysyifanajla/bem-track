@@ -251,7 +251,7 @@ export default function ProgramsPage() {
                       </Link>
                       <Link
                         href={`/programs/${prog.id}/edit`}
-                        className="p-1.5 text-[#8A817B] hover:text-[#352A28] hover:bg-[#FAF7F1] rounded-md transition-colors"
+                        className="p-1.5 text-[#756C69] hover:text-[#4E1724] hover:bg-[#FAF7F5] rounded-xl transition-colors"
                         title="Sunting Program"
                       >
                         <Edit3 className="w-4 h-4" />

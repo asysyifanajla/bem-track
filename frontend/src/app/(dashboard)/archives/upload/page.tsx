@@ -78,29 +78,29 @@ export default function ArchiveUploadPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between pb-3 border-b border-[#E8E0D7]">
+    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in font-sans">
+      <div className="flex items-center justify-between pb-3 border-b border-[#EFE8E2]">
         <button
           type="button"
           onClick={() => router.back()}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8A817B] hover:text-[#352A28] cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#756C69] hover:text-[#4E1724] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Kembali ke Arsip Dokumen</span>
         </button>
-        <span className="text-xs text-[#8A817B]">Form Unggah Arsip</span>
+        <span className="text-xs text-[#756C69]">Form Unggah Arsip</span>
       </div>
 
       {feedback && (
-        <div className="p-3 bg-[#EDF7F1] border border-[#2D7A4F]/25 rounded-lg flex items-center gap-2 text-xs font-semibold text-[#2D7A4F]">
+        <div className="p-3.5 bg-[#ECFDF5] border border-[#A7F3D0]/60 rounded-2xl flex items-center gap-2.5 text-xs font-semibold text-[#059669] shadow-2xs">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{feedback}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-4">
-          <h3 className="text-sm font-bold text-[#352A28] pb-2 border-b border-[#E8E0D7]">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white border border-[#EFE8E2] rounded-3xl p-6 sm:p-7 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] space-y-5">
+          <h3 className="text-sm sm:text-base font-bold text-[#22161A] pb-3 border-b border-[#EFE8E2] tracking-tight">
             Metadata Dokumen
           </h3>
 
@@ -133,7 +133,7 @@ export default function ArchiveUploadPage() {
               required
             >
               <option value="ARCHIVED">Dokumen Final (Dapat diakses publik/BPH)</option>
-              <option value="ACTIVE">Draft / Belum Final (Akses terbatas Dep & Sekum)</option>
+              <option value="ACTIVE">Draft / Belum Final (Akses terbatas Dep &amp; Sekum)</option>
             </Select>
           </div>
 
@@ -151,7 +151,7 @@ export default function ArchiveUploadPage() {
           </Select>
 
           <div>
-            <label className="block text-xs font-semibold text-[#352A28] mb-1.5">
+            <label className="block text-xs font-semibold text-[#22161A] mb-1.5">
               Keterangan / Ringkasan Isi Dokumen
             </label>
             <textarea
@@ -159,28 +159,28 @@ export default function ArchiveUploadPage() {
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="Informasi nomor surat, tanggal pengesahan, atau rincian laporan..."
-              className="w-full bg-white border border-[#E8E0D7] text-[#352A28] placeholder-[#8A817B]/60 text-sm rounded-lg p-3 focus:outline-hidden focus:border-[#6E2639] focus:ring-2 focus:ring-[#6E2639]/15"
+              className="w-full bg-[#FAF7F5] border border-[#EFE8E2] text-[#22161A] placeholder-[#A39893] text-sm rounded-2xl p-3.5 focus:bg-white focus:outline-hidden focus:border-[#4E1724] transition-all"
             />
           </div>
         </div>
 
         {/* File Dropzone Area */}
-        <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-3">
-          <h3 className="text-sm font-bold text-[#352A28]">Unggah Berkas Digital</h3>
+        <div className="bg-white border border-[#EFE8E2] rounded-3xl p-6 sm:p-7 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] space-y-3.5">
+          <h3 className="text-sm sm:text-base font-bold text-[#22161A] tracking-tight">Unggah Berkas Digital</h3>
 
-          <div className="border-2 border-dashed border-[#E8E0D7] hover:border-[#6E2639]/50 rounded-xl p-6 text-center bg-[#FAF7F1]/50 transition-colors">
-            <div className="w-10 h-10 rounded-full bg-white border border-[#E8E0D7] flex items-center justify-center text-[#6E2639] mx-auto mb-2">
-              <FileUp className="w-5 h-5" />
+          <div className="border-2 border-dashed border-[#EFE8E2] hover:border-[#4E1724]/60 rounded-2xl p-6 text-center bg-[#FAF7F5]/50 transition-colors">
+            <div className="w-12 h-12 rounded-2xl bg-white border border-[#EFE8E2] flex items-center justify-center text-[#4E1724] mx-auto mb-2 shadow-2xs">
+              <FileUp className="w-6 h-6" />
             </div>
-            <p className="text-xs font-semibold text-[#352A28]">
+            <p className="text-xs font-semibold text-[#22161A]">
               {fileName ? fileName : 'Pilih berkas dokumen PDF, Excel (.xlsx), atau Word (.docx)'}
             </p>
-            <p className="text-[11px] text-[#8A817B] mt-1">
+            <p className="text-[11px] text-[#756C69] mt-1">
               Batas ukuran maksimal 15 MB per dokumen
             </p>
 
             <label className="mt-3 inline-block">
-              <span className="px-3 py-1.5 rounded-lg bg-white border border-[#E8E0D7] text-xs font-semibold text-[#352A28] hover:bg-[#FAF7F1] cursor-pointer">
+              <span className="px-3.5 py-1.5 rounded-xl bg-white border border-[#EFE8E2] text-xs font-semibold text-[#22161A] hover:bg-[#FAF7F5] cursor-pointer shadow-2xs transition-colors">
                 Pilih Berkas Lokal
               </span>
               <input

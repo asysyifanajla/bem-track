@@ -73,19 +73,20 @@ export default function VaultPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[#E8E0D7]">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-2 border-b border-[#EFE8E2]">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold text-[#352A28] tracking-tight">
-              BEM Vault Organisasi
-            </h2>
-            <span className="text-[11px] font-semibold bg-[#F5EEF0] text-[#6E2639] px-2 py-0.5 rounded-sm">
-              Arsip Induk Organisasi
+            <span className="w-2 h-2 rounded-full bg-[#4E1724]" />
+            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#756C69]">
+              BEM-TRACK
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-[#8A817B] mt-0.5">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#22161A] tracking-tight">
+            BEM Vault Organisasi
+          </h1>
+          <p className="text-xs sm:text-sm text-[#756C69]">
             Pusat penyimpanan permanen konstitusi organisasi, SK Dekanat, GBHK, dan tata naskah dinas resmi
           </p>
         </div>
@@ -100,42 +101,44 @@ export default function VaultPage() {
       </div>
 
       {/* Authority notice */}
-      <div className="p-3.5 bg-white border border-[#E8E0D7] rounded-xl flex items-start sm:items-center justify-between gap-3 text-xs text-[#8A817B]">
-        <div className="flex items-center gap-2.5">
-          <BookOpen className="w-4 h-4 text-[#6E2639] shrink-0" />
+      <div className="p-4 sm:p-5 bg-white border border-[#EFE8E2] rounded-3xl flex items-start sm:items-center justify-between gap-3 text-xs text-[#756C69] shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)]">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-2xl bg-[#FAF0F3] text-[#4E1724] flex items-center justify-center shrink-0">
+            <BookOpen className="w-4.5 h-4.5" />
+          </div>
           <span>
             {canManage
               ? 'Anda memiliki hak penuh sebagai Sekretaris Umum untuk menambah, memperbarui, dan mengelola BEM Vault.'
               : 'Anda memiliki hak akses baca dan unduh resmi dokumen organisasi BEM FKI UMS.'}
           </span>
         </div>
-        <span className="font-semibold text-[#352A28] shrink-0 hidden sm:inline">
+        <span className="font-bold text-[#4E1724] bg-[#FAF0F3] border border-[#4E1724]/20 px-3 py-1 rounded-full shrink-0 hidden sm:inline">
           {canManage ? 'Akses: Pengelola' : 'Akses: Lihat & Unduh'}
         </span>
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="bg-white p-3.5 rounded-xl border border-[#E8E0D7] flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+      <div className="bg-white p-4 rounded-3xl border border-[#EFE8E2] shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A817B]" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#756C69]" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari AD/ART, SK Kepengurusan, GBHK, atau Template..."
-            className="w-full bg-[#FAF7F1]/60 border border-[#E8E0D7] rounded-lg pl-9 pr-3 py-1.5 text-xs text-[#352A28] placeholder-[#8A817B]/60 focus:bg-white focus:outline-hidden focus:border-[#6E2639] transition-colors"
+            className="w-full bg-[#FAF7F5] border border-[#EFE8E2] rounded-2xl pl-10 pr-3.5 py-2 text-xs text-[#22161A] placeholder-[#A39893] focus:bg-white focus:outline-hidden focus:border-[#4E1724] transition-colors"
           />
         </div>
 
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="bg-[#FAF7F1] border border-[#E8E0D7] text-xs text-[#352A28] rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-[#6E2639]"
+          className="bg-[#FAF7F5] border border-[#EFE8E2] text-xs font-medium text-[#22161A] rounded-2xl px-3.5 py-2 focus:outline-hidden focus:border-[#4E1724]"
         >
           <option value="ALL">Semua Bidang Regulasi</option>
           <option value="AD_ART">AD / ART</option>
           <option value="PERATURAN">Surat Keputusan (SK)</option>
-          <option value="PANDUAN">GBHK & Panduan</option>
+          <option value="PANDUAN">GBHK &amp; Panduan</option>
           <option value="TEMPLATE">Template Naskah</option>
         </select>
       </div>
@@ -159,39 +162,39 @@ export default function VaultPage() {
           }
         />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-7">
           {categoriesPresent.map((catKey) => {
             const docsInCat = filtered.filter((d) => d.vaultCategory === catKey);
             return (
-              <div key={catKey} className="space-y-3">
-                <div className="flex items-center gap-2 pb-1.5 border-b border-[#E8E0D7]">
-                  <Layers className="w-4 h-4 text-[#6E2639]" />
-                  <h3 className="text-xs font-bold text-[#352A28] uppercase tracking-wider">
+              <div key={catKey} className="space-y-3.5">
+                <div className="flex items-center gap-2 pb-2 border-b border-[#EFE8E2]">
+                  <Layers className="w-4 h-4 text-[#4E1724]" />
+                  <h2 className="text-xs sm:text-sm font-bold text-[#22161A] uppercase tracking-wider">
                     {VAULT_CATEGORY_LABELS[catKey] || catKey}
-                  </h3>
-                  <span className="text-[10px] text-[#8A817B] font-mono">({docsInCat.length})</span>
+                  </h2>
+                  <span className="text-[11px] text-[#756C69] font-mono font-medium">({docsInCat.length})</span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {docsInCat.map((doc) => (
                     <div
                       key={doc.id}
-                      className="bg-white border border-[#E8E0D7] hover:border-[#6E2639]/40 rounded-xl p-4 transition-all flex flex-col justify-between"
+                      className="bg-white border border-[#EFE8E2] hover:border-[#4E1724]/30 rounded-3xl p-5 sm:p-6 transition-all flex flex-col justify-between shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)]"
                     >
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-2.5">
-                            <div className="p-2 rounded-lg bg-[#FAF7F1] border border-[#E8E0D7] text-[#6E2639] shrink-0">
-                              <FileCheck2 className="w-4 h-4" />
+                          <div className="flex items-start gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-2xl bg-[#FBF6F0] border border-[#F2ECE4] text-[#8B263E] flex items-center justify-center shrink-0">
+                              <FileCheck2 className="w-5 h-5" />
                             </div>
-                            <div>
+                            <div className="min-w-0">
                               <Link
                                 href={`/vault/${doc.id}`}
-                                className="text-sm font-semibold text-[#352A28] hover:text-[#6E2639] transition-colors leading-snug line-clamp-2"
+                                className="text-sm font-bold text-[#22161A] hover:text-[#4E1724] transition-colors leading-snug line-clamp-2 block"
                               >
                                 {doc.title}
                               </Link>
-                              <span className="text-[10px] text-[#8A817B] block mt-0.5">
+                              <span className="text-[11px] text-[#756C69] block mt-1">
                                 {formatFileSize(doc.fileSize)} &bull; {formatDate(doc.uploadedAt)}
                               </span>
                             </div>
@@ -199,28 +202,28 @@ export default function VaultPage() {
                         </div>
 
                         {doc.description && (
-                          <p className="text-xs text-[#8A817B] line-clamp-2 leading-relaxed bg-[#FAF7F1]/50 p-2 rounded-md border border-[#E8E0D7]/60">
+                          <p className="text-xs text-[#756C69] line-clamp-2 leading-relaxed bg-[#FAF7F5] p-3 rounded-2xl border border-[#EFE8E2]">
                             {doc.description}
                           </p>
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between pt-3 mt-3 border-t border-[#E8E0D7] text-xs">
-                        <span className="text-[11px] text-[#8A817B]">
-                          Diunduh: <strong className="text-[#352A28]">{doc.downloadCount} kali</strong>
+                      <div className="flex items-center justify-between pt-3.5 mt-3.5 border-t border-[#EFE8E2] text-xs">
+                        <span className="text-[11px] text-[#756C69]">
+                          Diunduh: <strong className="text-[#22161A]">{doc.downloadCount} kali</strong>
                         </span>
 
                         <div className="flex items-center gap-1.5">
                           <Link
                             href={`/vault/${doc.id}`}
-                            className="p-1.5 text-[#8A817B] hover:text-[#6E2639] hover:bg-[#FAF7F1] rounded-md transition-colors"
+                            className="p-1.5 text-[#756C69] hover:text-[#4E1724] hover:bg-[#FAF7F5] rounded-xl transition-colors"
                             title="Detail Dokumen"
                           >
                             <Eye className="w-4 h-4" />
                           </Link>
                           <button
                             onClick={() => alert(`Mengunduh berkas vault: ${doc.title} (Simulasi Demo)`)}
-                            className="p-1.5 text-[#8A817B] hover:text-[#2D7A4F] hover:bg-[#FAF7F1] rounded-md transition-colors cursor-pointer"
+                            className="p-1.5 text-[#756C69] hover:text-[#059669] hover:bg-[#FAF7F5] rounded-xl transition-colors cursor-pointer"
                             title="Unduh Berkas Resmi"
                           >
                             <Download className="w-4 h-4" />
@@ -228,7 +231,7 @@ export default function VaultPage() {
                           {canManage && (
                             <button
                               onClick={() => handleDelete(doc.id, doc.title)}
-                              className="p-1.5 text-[#8A817B] hover:text-[#9B2335] hover:bg-[#FDF0F1] rounded-md transition-colors cursor-pointer"
+                              className="p-1.5 text-[#756C69] hover:text-[#DC2626] hover:bg-[#FEF2F2] rounded-xl transition-colors cursor-pointer"
                               title="Hapus dari Vault"
                             >
                               <Trash2 className="w-4 h-4" />

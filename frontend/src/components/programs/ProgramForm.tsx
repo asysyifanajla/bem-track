@@ -240,80 +240,80 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 font-sans">
       {/* Top Navigation Bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-3 border-b border-[#EFE8E2]">
         <Link
           href="/programs"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#E8DFD3] text-xs font-semibold text-[#8A817B] hover:text-[#352A28] hover:bg-[#FAF7F1] shadow-2xs transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#EFE8E2] text-xs font-semibold text-[#756C69] hover:text-[#4E1724] hover:bg-[#FAF7F5] shadow-2xs transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Kembali ke Daftar Program</span>
         </Link>
-        <span className="text-[11px] font-semibold text-[#8A817B] bg-white border border-[#E8DFD3] px-3 py-1 rounded-full shadow-2xs">
+        <span className="text-[11px] font-semibold text-[#756C69] bg-white border border-[#EFE8E2] px-3 py-1 rounded-full shadow-2xs">
           {isEdit ? 'Mode Sunting Program' : 'Formulir Usulan Terpadu'}
         </span>
       </div>
 
       {/* Hero Header Card */}
-      <div className="bg-white border border-[#E8DFD3] rounded-3xl p-5 sm:p-7 shadow-xs space-y-4">
+      <div className="bg-white border border-[#EFE8E2] rounded-3xl p-6 sm:p-7 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#6E2639]" />
-              <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase text-[#8A817B]">
+              <span className="w-2 h-2 rounded-full bg-[#4E1724]" />
+              <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase text-[#756C69]">
                 Birokrasi BEM FKI UMS &bull; {isEdit ? 'Pembaruan Data' : 'Pengajuan Proposal Baru'}
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#352A28] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#22161A] tracking-tight">
               {isEdit ? `Sunting Usulan: ${title}` : 'Pengajuan Usulan Program Kerja'}
             </h1>
-            <p className="text-xs sm:text-sm text-[#8A817B] max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#756C69] max-w-2xl leading-relaxed">
               Formulir usulan terpadu: lengkapi judul, deskripsi, jadwal kegiatan, dan unggah dokumen proposal yang memuat usulan kegiatan beserta Rencana Anggaran Biaya (RAB).
             </p>
           </div>
 
-          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F1] border border-[#E8DFD3] flex items-center justify-center text-[#6E2639] shrink-0 shadow-2xs">
+          <div className="w-12 h-12 rounded-2xl bg-[#FBF6F0] border border-[#F2ECE4] flex items-center justify-center text-[#8B263E] shrink-0 shadow-2xs">
             <FileText className="w-6 h-6" />
           </div>
         </div>
 
         {/* 3-Step Structure Summary */}
-        <div className="pt-3 border-t border-[#E8DFD3]/80 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-          <div className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#F5EEF0] border border-[#6E2639]/20 text-[#6E2639]">
-            <span className="w-5 h-5 rounded-full bg-[#6E2639] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+        <div className="pt-3 border-t border-[#EFE8E2] grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+          <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#FAF0F3] border border-[#4E1724]/20 text-[#4E1724]">
+            <span className="w-5 h-5 rounded-full bg-[#4E1724] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
               1
             </span>
             <div className="min-w-0">
               <p className="font-semibold text-xs truncate">Informasi &amp; IndoBERT</p>
-              <p className="text-[10px] text-[#8A4658] truncate">Judul, deskripsi &amp; multi-label</p>
+              <p className="text-[10px] text-[#8B263E] truncate">Judul, deskripsi &amp; multi-label</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#FAF7F1] border border-[#E8DFD3] text-[#352A28]">
-            <span className="w-5 h-5 rounded-full bg-[#E8DFD3] text-[#352A28] flex items-center justify-center text-[11px] font-bold shrink-0">
+          <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#FAF7F5] border border-[#EFE8E2] text-[#22161A]">
+            <span className="w-5 h-5 rounded-full bg-[#EFE8E2] text-[#22161A] flex items-center justify-center text-[11px] font-bold shrink-0">
               2
             </span>
             <div className="min-w-0">
               <p className="font-semibold text-xs truncate">Jadwal &amp; Departemen</p>
-              <p className="text-[10px] text-[#8A817B] truncate">4 Departemen pelaksana resmi</p>
+              <p className="text-[10px] text-[#756C69] truncate">4 Departemen pelaksana resmi</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#FAF7F1] border border-[#E8DFD3] text-[#352A28]">
-            <span className="w-5 h-5 rounded-full bg-[#E8DFD3] text-[#352A28] flex items-center justify-center text-[11px] font-bold shrink-0">
+          <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#FAF7F5] border border-[#EFE8E2] text-[#22161A]">
+            <span className="w-5 h-5 rounded-full bg-[#EFE8E2] text-[#22161A] flex items-center justify-center text-[11px] font-bold shrink-0">
               3
             </span>
             <div className="min-w-0">
               <p className="font-semibold text-xs truncate">Unggah Dokumen Proposal</p>
-              <p className="text-[10px] text-[#8A817B] truncate">Memuat proposal &amp; RAB terpadu</p>
+              <p className="text-[10px] text-[#756C69] truncate">Memuat proposal &amp; RAB terpadu</p>
             </div>
           </div>
         </div>
       </div>
 
       {feedback && (
-        <div className="p-3.5 bg-[#EDF7F1] border border-[#2D7A4F]/25 rounded-2xl flex items-center gap-2.5 text-xs font-semibold text-[#2D7A4F] shadow-2xs">
+        <div className="p-3.5 bg-[#ECFDF5] border border-[#A7F3D0]/60 rounded-2xl flex items-center gap-2.5 text-xs font-semibold text-[#059669] shadow-2xs">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{feedback}</span>
         </div>
@@ -335,17 +335,17 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
         className="space-y-6"
       >
         {/* Section 1: Informasi Pokok & IndoBERT Multi-Label */}
-        <div className="bg-white border border-[#E8DFD3] rounded-3xl p-5 sm:p-7 shadow-xs space-y-4">
-          <div className="pb-3 border-b border-[#E8DFD3] flex items-center justify-between">
+        <div className="bg-white border border-[#EFE8E2] rounded-3xl p-6 sm:p-7 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] space-y-4">
+          <div className="pb-3 border-b border-[#EFE8E2] flex items-center justify-between">
             <div>
-              <h2 className="text-sm sm:text-base font-bold text-[#352A28] tracking-tight">
+              <h2 className="text-sm sm:text-base font-bold text-[#22161A] tracking-tight">
                 1. Informasi Pokok &amp; Klasifikasi Otomatis IndoBERT
               </h2>
-              <p className="text-xs text-[#8A817B] mt-0.5">
+              <p className="text-xs text-[#756C69] mt-0.5">
                 Judul dan deskripsi akan dianalisis model IndoBERT ke dalam 5 kategori multi-label resmi
               </p>
             </div>
-            <span className="text-[11px] font-semibold text-[#6E2639] bg-[#F5EEF0] px-2.5 py-0.5 rounded-full">
+            <span className="text-[11px] font-semibold text-[#4E1724] bg-[#FAF0F3] border border-[#4E1724]/20 px-2.5 py-0.5 rounded-full">
               Wajib Diisi
             </span>
           </div>
@@ -360,8 +360,8 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
             />
 
             <div>
-              <label className="block text-xs font-semibold text-[#352A28] mb-1.5">
-                Deskripsi Program Kerja <span className="text-[#9B2335]">*</span>
+              <label className="block text-xs font-semibold text-[#22161A] mb-1.5">
+                Deskripsi Program Kerja <span className="text-[#DC2626]">*</span>
               </label>
               <textarea
                 value={description}
@@ -369,7 +369,7 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
                 rows={3}
                 required
                 placeholder="Jelaskan ringkasan materi, sasaran peserta, dan urgensi program..."
-                className="w-full bg-[#FAF7F1]/30 border border-[#E8DFD3] text-[#352A28] placeholder-[#8A817B]/60 text-sm rounded-2xl p-3.5 focus:bg-white focus:outline-hidden focus:border-[#6E2639] focus:ring-2 focus:ring-[#6E2639]/15 transition-all"
+                className="w-full bg-[#FAF7F5] border border-[#EFE8E2] text-[#22161A] placeholder-[#A39893] text-sm rounded-2xl p-3.5 focus:bg-white focus:outline-hidden focus:border-[#4E1724] transition-all"
               />
             </div>
 
@@ -382,7 +382,7 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
 
             {/* Manual Category Selection (5 Thesis Categories) */}
             <div className="pt-2">
-              <label className="block text-xs font-semibold text-[#352A28] mb-1.5">
+              <label className="block text-xs font-semibold text-[#22161A] mb-1.5">
                 Pilihan Kategori Multi-Label (5 Kategori Resmi):
               </label>
               <div className="flex flex-wrap gap-2">
@@ -395,8 +395,8 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
                       onClick={() => toggleCategory(cat.value as ProgramCategory)}
                       className={`text-xs px-3.5 py-2 rounded-2xl border transition-all cursor-pointer flex items-center gap-1.5 ${
                         isSelected
-                          ? 'bg-[#6E2639] text-white border-[#6E2639] shadow-xs font-medium'
-                          : 'bg-[#FAF7F1] text-[#352A28] border-[#E8DFD3] hover:bg-[#F3EBDD]'
+                          ? 'bg-[#4E1724] text-white border-[#4E1724] shadow-xs font-medium'
+                          : 'bg-[#FAF7F5] text-[#22161A] border-[#EFE8E2] hover:bg-[#F2ECE4]'
                       }`}
                     >
                       {isSelected && <CheckCircle2 className="w-3.5 h-3.5" />}
@@ -410,12 +410,12 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
         </div>
 
         {/* Section 2: Departemen Pelaksana & Jadwal Kegiatan */}
-        <div className="bg-white border border-[#E8DFD3] rounded-3xl p-5 sm:p-7 shadow-xs space-y-4">
-          <div className="pb-3 border-b border-[#E8DFD3]">
-            <h2 className="text-sm sm:text-base font-bold text-[#352A28] tracking-tight">
+        <div className="bg-white border border-[#EFE8E2] rounded-3xl p-6 sm:p-7 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] space-y-4">
+          <div className="pb-3 border-b border-[#EFE8E2]">
+            <h2 className="text-sm sm:text-base font-bold text-[#22161A] tracking-tight">
               2. Departemen Pelaksana &amp; Jadwal Pelaksanaan
             </h2>
-            <p className="text-xs text-[#8A817B] mt-0.5">
+            <p className="text-xs text-[#756C69] mt-0.5">
               Pilih satu dari 4 departemen pelaksana resmi dan tentukan jadwal pelaksanaan
             </p>
           </div>
@@ -461,29 +461,29 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
         </div>
 
         {/* Section 3: Unggah Dokumen Proposal (Memuat Usulan & RAB Terpadu) */}
-        <div className="bg-white border border-[#E8DFD3] rounded-3xl p-5 sm:p-7 shadow-xs space-y-4">
-          <div className="pb-3 border-b border-[#E8DFD3] flex items-center justify-between">
+        <div className="bg-white border border-[#EFE8E2] rounded-3xl p-6 sm:p-7 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] space-y-4">
+          <div className="pb-3 border-b border-[#EFE8E2] flex items-center justify-between">
             <div>
-              <h2 className="text-sm sm:text-base font-bold text-[#352A28] tracking-tight">
+              <h2 className="text-sm sm:text-base font-bold text-[#22161A] tracking-tight">
                 3. Unggah Dokumen Proposal (Memuat Proposal &amp; RAB)
               </h2>
-              <p className="text-xs text-[#8A817B] mt-0.5">
+              <p className="text-xs text-[#756C69] mt-0.5">
                 Dokumen proposal resmi berisikan naskah kegiatan lengkap dan Rencana Anggaran Biaya (RAB)
               </p>
             </div>
-            <span className="text-[11px] font-semibold text-[#6E2639] bg-[#F5EEF0] px-2.5 py-0.5 rounded-full">
+            <span className="text-[11px] font-semibold text-[#4E1724] bg-[#FAF0F3] border border-[#4E1724]/20 px-2.5 py-0.5 rounded-full">
               Wajib Unggah
             </span>
           </div>
 
           {/* Informative Alert explaining simplified proposal & RAB */}
-          <div className="p-3.5 bg-[#FAF7F1] border border-[#E8DFD3] rounded-2xl flex items-start gap-3 text-xs leading-relaxed text-[#352A28]">
-            <Building2 className="w-4 h-4 text-[#6E2639] shrink-0 mt-0.5" />
+          <div className="p-4 bg-[#FAF7F5] border border-[#EFE8E2] rounded-2xl flex items-start gap-3 text-xs leading-relaxed text-[#22161A]">
+            <Building2 className="w-4 h-4 text-[#4E1724] shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-[#6E2639]">
+              <p className="font-bold text-[#4E1724]">
                 Penyederhanaan Formulir (BEM-Track Revision Rule)
               </p>
-              <p className="text-[11px] text-[#8A817B] mt-0.5">
+              <p className="text-[11px] text-[#756C69] mt-0.5">
                 Sesuai aturan birokrasi BEM-Track, pengusul <strong>tidak perlu menginput rincian item anggaran satu per satu</strong> pada formulir manual. Bendahara Umum akan meninjau dan memverifikasi kelayakan anggaran (RAB) langsung dari dokumen proposal resmi yang Anda unggah di sini.
               </p>
             </div>
@@ -492,14 +492,14 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
           {/* File Upload Drop Area */}
           <div className="space-y-3">
             {!proposalFileName ? (
-              <label className="border-2 border-dashed border-[#E8DFD3] hover:border-[#6E2639]/60 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-[#FAF7F1]/30 hover:bg-[#FAF7F1]/70">
-                <div className="w-12 h-12 rounded-2xl bg-white border border-[#E8DFD3] flex items-center justify-center text-[#6E2639] shadow-2xs mb-3">
+              <label className="border-2 border-dashed border-[#EFE8E2] hover:border-[#4E1724]/60 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-[#FAF7F5]/50 hover:bg-[#FAF7F5]">
+                <div className="w-12 h-12 rounded-2xl bg-white border border-[#EFE8E2] flex items-center justify-center text-[#4E1724] shadow-2xs mb-3">
                   <UploadCloud className="w-6 h-6" />
                 </div>
-                <p className="text-xs sm:text-sm font-bold text-[#352A28]">
+                <p className="text-xs sm:text-sm font-bold text-[#22161A]">
                   Klik untuk memilih atau seret dokumen proposal ke sini
                 </p>
-                <p className="text-[11px] text-[#8A817B] mt-1">
+                <p className="text-[11px] text-[#756C69] mt-1">
                   Format didukung: <strong>PDF, DOC, DOCX</strong> &bull; Ukuran maksimal <strong>{MAX_FILE_SIZE_MB} MB</strong>
                 </p>
                 <input
@@ -510,23 +510,23 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
                 />
               </label>
             ) : (
-              <div className="flex items-center justify-between p-4 bg-[#FAF7F1] border border-[#E8DFD3] rounded-2xl">
+              <div className="flex items-center justify-between p-4 bg-[#FAF7F5] border border-[#EFE8E2] rounded-2xl">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-[#E8DFD3] flex items-center justify-center text-[#6E2639] shrink-0 shadow-2xs">
+                  <div className="w-10 h-10 rounded-xl bg-white border border-[#EFE8E2] flex items-center justify-center text-[#4E1724] shrink-0 shadow-2xs">
                     <FileUp className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-xs sm:text-sm text-[#352A28] truncate">
+                    <p className="font-bold text-xs sm:text-sm text-[#22161A] truncate">
                       {proposalFileName}
                     </p>
-                    <p className="text-[11px] text-[#8A817B]">
+                    <p className="text-[11px] text-[#756C69]">
                       {(proposalFileSize / (1024 * 1024)).toFixed(2)} MB &bull; Dokumen Proposal &amp; RAB Siap Diajukan
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <label className="px-3 py-1.5 rounded-xl bg-white border border-[#E8DFD3] text-xs font-semibold text-[#352A28] hover:bg-[#FAF7F1] cursor-pointer transition-colors shadow-2xs">
+                  <label className="px-3 py-1.5 rounded-xl bg-white border border-[#EFE8E2] text-xs font-semibold text-[#22161A] hover:bg-[#FAF7F5] cursor-pointer transition-colors shadow-2xs">
                     Ganti
                     <input
                       type="file"
@@ -538,7 +538,7 @@ export default function ProgramForm({ initialData, isEdit = false }: ProgramForm
                   <button
                     type="button"
                     onClick={removeUploadedFile}
-                    className="p-1.5 rounded-xl text-[#9B2335] hover:bg-rose-50 transition-colors cursor-pointer"
+                    className="p-1.5 rounded-xl text-[#DC2626] hover:bg-rose-50 transition-colors cursor-pointer"
                     title="Hapus file"
                   >
                     <X className="w-4 h-4" />

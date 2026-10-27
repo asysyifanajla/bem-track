@@ -74,14 +74,20 @@ export default function ArchivesPage() {
   };
 
   return (
-    <div className="space-y-5 animate-fade-in">
+    <div className="space-y-6 animate-fade-in font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[#E8E0D7]">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#352A28] tracking-tight">
-            Arsip Dokumen Birokrasi (E-Archive)
-          </h2>
-          <p className="text-xs sm:text-sm text-[#8A817B] mt-0.5">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-2 border-b border-[#EFE8E2]">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#4E1724]" />
+            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#756C69]">
+              BEM-TRACK
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#22161A] tracking-tight">
+            Arsip Dokumen Birokrasi
+          </h1>
+          <p className="text-xs sm:text-sm text-[#756C69]">
             Document management system untuk proposal, RAB, LPJ, dan notulensi resmi kegiatan BEM FKI
           </p>
         </div>
@@ -97,34 +103,36 @@ export default function ArchivesPage() {
 
       {/* Access info banner if non-privileged */}
       {!isPrivileged && (
-        <div className="p-3 bg-white border border-[#E8E0D7] rounded-lg flex items-center gap-2.5 text-xs text-[#8A817B]">
-          <Lock className="w-4 h-4 text-[#8A817B] shrink-0" />
+        <div className="p-4 bg-white border border-[#EFE8E2] rounded-3xl flex items-center gap-3 text-xs text-[#756C69] shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)]">
+          <div className="w-8 h-8 rounded-xl bg-[#FAF0F3] text-[#4E1724] flex items-center justify-center shrink-0">
+            <Lock className="w-4 h-4" />
+          </div>
           <span>
             Berdasarkan matriks hak akses, peran Anda hanya dapat mengakses dokumen dengan status{' '}
-            <strong className="text-[#352A28]">Final / Disetujui</strong>. Dokumen draft hanya dapat
+            <strong className="text-[#22161A]">Final / Disetujui</strong>. Dokumen draft hanya dapat
             dikelola oleh Sekretaris Umum dan Departemen pengunggah.
           </span>
         </div>
       )}
 
       {/* Filters Bar */}
-      <div className="bg-white p-3.5 rounded-xl border border-[#E8E0D7] flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+      <div className="bg-white p-4 rounded-3xl border border-[#EFE8E2] shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A817B]" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#756C69]" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari nama dokumen, program terkait, atau pengunggah..."
-            className="w-full bg-[#FAF7F1]/60 border border-[#E8E0D7] rounded-lg pl-9 pr-3 py-1.5 text-xs text-[#352A28] placeholder-[#8A817B]/60 focus:bg-white focus:outline-hidden focus:border-[#6E2639] transition-colors"
+            className="w-full bg-[#FAF7F5] border border-[#EFE8E2] rounded-2xl pl-10 pr-3.5 py-2 text-xs text-[#22161A] placeholder-[#A39893] focus:bg-white focus:outline-hidden focus:border-[#4E1724] transition-colors"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="bg-[#FAF7F1] border border-[#E8E0D7] text-xs text-[#352A28] rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-[#6E2639]"
+            className="bg-[#FAF7F5] border border-[#EFE8E2] text-xs font-medium text-[#22161A] rounded-2xl px-3.5 py-2 focus:outline-hidden focus:border-[#4E1724]"
           >
             <option value="ALL">Semua Jenis Dokumen</option>
             <option value="PROPOSAL">Proposal</option>
@@ -138,7 +146,7 @@ export default function ArchivesPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-[#FAF7F1] border border-[#E8E0D7] text-xs text-[#352A28] rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-[#6E2639]"
+              className="bg-[#FAF7F5] border border-[#EFE8E2] text-xs font-medium text-[#22161A] rounded-2xl px-3.5 py-2 focus:outline-hidden focus:border-[#4E1724]"
             >
               <option value="ALL">Semua Status</option>
               <option value="ARCHIVED">Final / Terarsip</option>
@@ -186,22 +194,22 @@ export default function ArchivesPage() {
               return (
                 <TableRow key={doc.id}>
                   <TableCell>
-                    <div className="flex items-start gap-2.5">
-                      <div className="p-2 rounded-md bg-[#FAF7F1] border border-[#E8E0D7] text-[#6E2639] shrink-0 mt-0.5">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-[#FBF6F0] border border-[#F2ECE4] text-[#8B263E] flex items-center justify-center shrink-0 mt-0.5">
                         {isExcel ? (
-                          <FileSpreadsheet className="w-4 h-4 text-[#2D7A4F]" />
+                          <FileSpreadsheet className="w-5 h-5 text-[#059669]" />
                         ) : (
-                          <FileText className="w-4 h-4 text-[#9B2335]" />
+                          <FileText className="w-5 h-5 text-[#8B263E]" />
                         )}
                       </div>
                       <div>
                         <Link
                           href={`/archives/${doc.id}`}
-                          className="font-semibold text-[#352A28] hover:text-[#6E2639] block"
+                          className="font-bold text-[#22161A] hover:text-[#4E1724] transition-colors block"
                         >
                           {doc.title}
                         </Link>
-                        <span className="text-[11px] text-[#8A817B]">
+                        <span className="text-[11px] text-[#756C69]">
                           {formatFileSize(doc.fileSize)} &bull; Diunggah oleh {doc.uploadedBy}
                         </span>
                       </div>
@@ -209,18 +217,18 @@ export default function ArchivesPage() {
                   </TableCell>
 
                   <TableCell>
-                    <span className="text-xs text-[#352A28] font-medium">
+                    <span className="text-xs text-[#22161A] font-semibold">
                       {doc.programTitle || 'Umum Organisasi'}
                     </span>
                   </TableCell>
 
                   <TableCell>
-                    <span className="text-[10px] font-semibold bg-[#FAF7F1] text-[#352A28] border border-[#E8E0D7] px-2 py-0.5 rounded-sm">
+                    <span className="text-[11px] font-medium bg-[#FAF7F5] text-[#22161A] border border-[#EFE8E2] px-2.5 py-0.5 rounded-full">
                       {doc.category}
                     </span>
                   </TableCell>
 
-                  <TableCell className="whitespace-nowrap text-xs text-[#8A817B]">
+                  <TableCell className="whitespace-nowrap text-xs text-[#756C69]">
                     {formatDate(doc.uploadedAt)}
                   </TableCell>
 
@@ -240,14 +248,14 @@ export default function ArchivesPage() {
                     <div className="inline-flex items-center gap-1.5">
                       <Link
                         href={`/archives/${doc.id}`}
-                        className="p-1.5 text-[#8A817B] hover:text-[#6E2639] hover:bg-[#FAF7F1] rounded-md transition-colors"
+                        className="p-1.5 text-[#756C69] hover:text-[#4E1724] hover:bg-[#FAF7F5] rounded-xl transition-colors"
                         title="Lihat Detail Metadata"
                       >
                         <Eye className="w-4 h-4" />
                       </Link>
                       <button
                         onClick={() => alert(`Mengunduh berkas: ${doc.title} (Simulasi demo)`)}
-                        className="p-1.5 text-[#8A817B] hover:text-[#2D7A4F] hover:bg-[#FAF7F1] rounded-md transition-colors cursor-pointer"
+                        className="p-1.5 text-[#756C69] hover:text-[#059669] hover:bg-[#FAF7F5] rounded-xl transition-colors cursor-pointer"
                         title="Unduh Berkas"
                       >
                         <Download className="w-4 h-4" />
@@ -255,7 +263,7 @@ export default function ArchivesPage() {
                       {isPrivileged && (
                         <button
                           onClick={() => handleDelete(doc.id, doc.title)}
-                          className="p-1.5 text-[#8A817B] hover:text-[#9B2335] hover:bg-[#FDF0F1] rounded-md transition-colors cursor-pointer"
+                          className="p-1.5 text-[#756C69] hover:text-[#DC2626] hover:bg-[#FEF2F2] rounded-xl transition-colors cursor-pointer"
                           title="Hapus Dokumen"
                         >
                           <Trash2 className="w-4 h-4" />

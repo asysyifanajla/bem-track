@@ -87,14 +87,20 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[#E8E0D7]">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#352A28] tracking-tight">
-            Manajemen Pengguna & Fungsionaris
-          </h2>
-          <p className="text-xs sm:text-sm text-[#8A817B] mt-0.5">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-2 border-b border-[#EFE8E2]">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#4E1724]" />
+            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#756C69]">
+              BEM-TRACK
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#22161A] tracking-tight">
+            Manajemen Pengguna &amp; Fungsionaris
+          </h1>
+          <p className="text-xs sm:text-sm text-[#756C69]">
             Daftar akun pengurus, penetapan peran organisasi, dan kendali kredensial sistem
           </p>
         </div>
@@ -109,7 +115,7 @@ export default function UsersPage() {
       </div>
 
       {feedback && (
-        <div className="p-3 bg-[#EDF7F1] border border-[#2D7A4F]/25 rounded-lg flex items-center gap-2 text-xs font-semibold text-[#2D7A4F]">
+        <div className="p-3.5 bg-[#ECFDF5] border border-[#A7F3D0]/60 rounded-2xl flex items-center gap-2.5 text-xs font-semibold text-[#059669] shadow-2xs">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{feedback}</span>
         </div>
@@ -117,8 +123,10 @@ export default function UsersPage() {
 
       {/* Authority Notice */}
       {!canManage && (
-        <div className="p-3 bg-white border border-[#E8E0D7] rounded-lg flex items-center gap-2.5 text-xs text-[#8A817B]">
-          <Lock className="w-4 h-4 text-[#8A817B] shrink-0" />
+        <div className="p-4 bg-white border border-[#EFE8E2] rounded-3xl flex items-center gap-3 text-xs text-[#756C69] shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)]">
+          <div className="w-8 h-8 rounded-xl bg-[#FAF0F3] text-[#4E1724] flex items-center justify-center shrink-0">
+            <Lock className="w-4 h-4" />
+          </div>
           <span>
             Pengelolaan pengguna dibatasi untuk Administrator dan Pimpinan Organisasi sesuai
             kewenangan. Tampilan akun bersifat pemantauan.
@@ -127,19 +135,19 @@ export default function UsersPage() {
       )}
 
       {/* Search */}
-      <div className="bg-white p-3.5 rounded-xl border border-[#E8E0D7] flex items-center justify-between">
+      <div className="bg-white p-4 rounded-3xl border border-[#EFE8E2] shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A817B]" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#756C69]" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari nama pengurus, email, atau peran..."
-            className="w-full bg-[#FAF7F1]/60 border border-[#E8E0D7] rounded-lg pl-9 pr-3 py-1.5 text-xs text-[#352A28] placeholder-[#8A817B]/60 focus:bg-white focus:outline-hidden focus:border-[#6E2639] transition-colors"
+            className="w-full bg-[#FAF7F5] border border-[#EFE8E2] rounded-2xl pl-10 pr-3.5 py-2 text-xs text-[#22161A] placeholder-[#A39893] focus:bg-white focus:outline-hidden focus:border-[#4E1724] transition-colors"
           />
         </div>
 
-        <span className="text-xs text-[#8A817B] font-medium hidden sm:inline">
+        <span className="text-xs text-[#756C69] font-medium hidden sm:inline">
           {filtered.length} Akun Terdaftar
         </span>
       </div>
@@ -160,23 +168,23 @@ export default function UsersPage() {
           {filtered.map((user) => (
             <TableRow key={user.id}>
               <TableCell>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-[#6E2639] text-white flex items-center justify-center text-xs font-semibold">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[#4E1724] text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
                     {user.name.split(' ').slice(0, 2).map((n) => n[0]).join('')}
                   </div>
-                  <span className="font-semibold text-xs text-[#352A28]">{user.name}</span>
+                  <span className="font-bold text-xs sm:text-sm text-[#22161A]">{user.name}</span>
                 </div>
               </TableCell>
 
-              <TableCell className="text-xs text-[#8A817B] font-mono">{user.email}</TableCell>
+              <TableCell className="text-xs text-[#756C69] font-mono">{user.email}</TableCell>
 
               <TableCell>
-                <span className="text-[11px] font-semibold bg-[#F5EEF0] text-[#6E2639] px-2 py-0.5 rounded-sm">
+                <span className="text-[11px] font-semibold bg-[#FAF0F3] text-[#4E1724] border border-[#4E1724]/20 px-2.5 py-0.5 rounded-full">
                   {ROLE_LABELS[user.role]}
                 </span>
               </TableCell>
 
-              <TableCell className="text-xs text-[#352A28]">
+              <TableCell className="text-xs text-[#22161A]">
                 {user.departemen || 'Badan Pengurus Harian (BPH)'}
               </TableCell>
 
@@ -200,7 +208,7 @@ export default function UsersPage() {
                         setSelectedUser(user);
                         setModalType('RESET_PASSWORD');
                       }}
-                      className="p-1.5 text-[#8A817B] hover:text-[#6E2639] hover:bg-[#FAF7F1] rounded-md transition-colors cursor-pointer"
+                      className="p-1.5 text-[#756C69] hover:text-[#4E1724] hover:bg-[#FAF7F5] rounded-xl transition-colors cursor-pointer"
                       title="Reset Kata Sandi"
                     >
                       <KeyRound className="w-4 h-4" />
@@ -210,14 +218,14 @@ export default function UsersPage() {
                         setSelectedUser(user);
                         setModalType('TOGGLE_STATUS');
                       }}
-                      className="p-1.5 text-[#8A817B] hover:text-[#9B2335] hover:bg-[#FDF0F1] rounded-md transition-colors cursor-pointer"
+                      className="p-1.5 text-[#756C69] hover:text-[#DC2626] hover:bg-[#FEF2F2] rounded-xl transition-colors cursor-pointer"
                       title="Ubah Status Akun"
                     >
                       <Lock className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <span className="text-[11px] text-[#8A817B] italic">Hanya Pantau</span>
+                  <span className="text-[11px] text-[#756C69] italic">Hanya Pantau</span>
                 )}
               </TableCell>
             </TableRow>

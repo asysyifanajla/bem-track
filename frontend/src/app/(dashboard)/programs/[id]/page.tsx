@@ -10,7 +10,6 @@ import {
   Building2,
   User,
   FileText,
-  FileSpreadsheet,
   Download,
   Edit3,
   Cpu,
@@ -36,7 +35,6 @@ export default function ProgramDetailPage({ params }: PageProps) {
   const program = programs.find((p) => p.id === programId) || programs[0];
 
   const currentUser = useCurrentUser();
-  const isGubernur = currentUser.role === 'GUBERNUR';
 
   // Build verification stepper steps based on current status & history (Bendum -> Sekum -> Gubernur)
   const isBendumDone = ['SEKUM_REVIEW', 'GUBERNUR_REVIEW', 'APPROVED'].includes(program.status);
@@ -112,7 +110,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
+    <div className="space-y-6 animate-fade-in max-w-5xl mx-auto font-sans">
       {/* Top action header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-[#E8E0D7]">
         <button
@@ -136,7 +134,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
       </div>
 
       {/* Program Core Hero Card */}
-      <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-4">
+      <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-4 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
@@ -154,44 +152,52 @@ export default function ProgramDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Metadata items row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-[#E8E0D7] text-xs">
-          <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-[#8A817B] shrink-0" />
-            <div>
-              <p className="text-[10px] text-[#8A817B]">Departemen</p>
-              <p className="font-semibold text-[#352A28] truncate">{program.departemen}</p>
+        {/* Metadata items row (Bounded, non-overlapping) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3.5 border-t border-[#E8E0D7] text-xs">
+          <div className="flex items-start gap-2.5 min-w-0 p-2.5 rounded-lg bg-[#FAF7F1]/60 border border-[#E8E0D7]/60">
+            <Building2 className="w-4 h-4 text-[#6E2639] shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-medium text-[#8A817B] leading-none mb-1">Departemen</p>
+              <p className="font-semibold text-[#352A28] truncate text-xs" title={program.departemen}>
+                {program.departemen}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-[#8A817B] shrink-0" />
-            <div>
-              <p className="text-[10px] text-[#8A817B]">Pengaju</p>
-              <p className="font-semibold text-[#352A28] truncate">{program.submittedBy}</p>
+          <div className="flex items-start gap-2.5 min-w-0 p-2.5 rounded-lg bg-[#FAF7F1]/60 border border-[#E8E0D7]/60">
+            <User className="w-4 h-4 text-[#6E2639] shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-medium text-[#8A817B] leading-none mb-1">Pengaju</p>
+              <p className="font-semibold text-[#352A28] truncate text-xs" title={program.submittedBy}>
+                {program.submittedBy}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-[#8A817B] shrink-0" />
-            <div>
-              <p className="text-[10px] text-[#8A817B]">Pelaksanaan</p>
-              <p className="font-semibold text-[#352A28]">{formatDate(program.plannedDate)}</p>
+          <div className="flex items-start gap-2.5 min-w-0 p-2.5 rounded-lg bg-[#FAF7F1]/60 border border-[#E8E0D7]/60">
+            <Calendar className="w-4 h-4 text-[#6E2639] shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-medium text-[#8A817B] leading-none mb-1">Pelaksanaan</p>
+              <p className="font-semibold text-[#352A28] truncate text-xs">
+                {formatDate(program.plannedDate)}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-[#8A817B] shrink-0" />
-            <div>
-              <p className="text-[10px] text-[#8A817B]">Lokasi</p>
-              <p className="font-semibold text-[#352A28] truncate">{program.location}</p>
+          <div className="flex items-start gap-2.5 min-w-0 p-2.5 rounded-lg bg-[#FAF7F1]/60 border border-[#E8E0D7]/60">
+            <MapPin className="w-4 h-4 text-[#6E2639] shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-medium text-[#8A817B] leading-none mb-1">Lokasi</p>
+              <p className="font-semibold text-[#352A28] truncate text-xs" title={program.location}>
+                {program.location}
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Stepper Progres Verifikasi Birokrasi */}
-      <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-4">
+      {/* Stepper Progres Verifikasi Birokrasi (Tahapan Persetujuan) */}
+      <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-4 shadow-2xs">
         <div className="flex items-center justify-between pb-3 border-b border-[#E8E0D7]">
           <div>
             <h3 className="text-sm font-bold text-[#352A28]">Tahapan Verifikasi Birokrasi</h3>
@@ -209,46 +215,92 @@ export default function ProgramDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Split Details: Left (Description & RAB), Right (IndoBERT Tags, Docs, Revision Notes) */}
+      {/* Main Content (2-Column Balanced Grid) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column (7 cols): Proposal Narratives & Budget Details */}
+        {/* Left Column (7 cols): Card Detail Program Kerja */}
         <div className="lg:col-span-7 space-y-5">
-          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-4">
-            <h3 className="text-sm font-bold text-[#352A28] pb-2 border-b border-[#E8E0D7]">
-              Latar Belakang & Tujuan
-            </h3>
-            <div className="space-y-3 text-xs leading-relaxed text-[#352A28]">
+          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-4 shadow-2xs">
+            <div className="pb-3 border-b border-[#E8E0D7]">
+              <h3 className="text-sm font-bold text-[#352A28]">Detail Program Kerja</h3>
+              <p className="text-xs text-[#8A817B]">
+                Latar belakang serta tujuan dan sasaran kegiatan
+              </p>
+            </div>
+
+            <div className="space-y-4 text-xs text-[#352A28] leading-relaxed">
+              {/* Latar Belakang */}
               <div>
-                <span className="font-semibold text-[#8A817B] block mb-0.5">Latar Belakang:</span>
-                <p className="bg-[#FAF7F1]/60 p-3 rounded-lg border border-[#E8E0D7]">
-                  {program.background}
+                <p className="font-semibold text-[#6E2639] text-xs mb-1.5">Latar Belakang:</p>
+                <p className="text-[#352A28] leading-relaxed">
+                  {program.background || program.description}
                 </p>
               </div>
 
+              <div className="border-t border-[#E8E0D7]/60" />
+
+              {/* Tujuan & Sasaran */}
               <div>
-                <span className="font-semibold text-[#8A817B] block mb-0.5">Tujuan & Sasaran:</span>
-                <p className="bg-[#FAF7F1]/60 p-3 rounded-lg border border-[#E8E0D7]">
-                  {program.objectives}
+                <p className="font-semibold text-[#6E2639] text-xs mb-1.5">Tujuan &amp; Sasaran:</p>
+                <p className="text-[#352A28] leading-relaxed">
+                  {program.objectives || 'Meningkatkan kapasitas mahasiswa dan sinergi organisasi BEM FKI UMS.'}
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column (5 cols): AI Tags, Support Docs, Revision Notes */}
+        {/* Right Column (5 cols): Dokumen Proposal & RAB + Klasifikasi IndoBERT (Ringkas) */}
         <div className="lg:col-span-5 space-y-5">
-          {/* IndoBERT Multi-label Tags Card */}
-          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3">
-            <div className="flex items-center gap-2 pb-2 border-b border-[#E8E0D7]">
-              <Cpu className="w-4 h-4 text-[#6E2639]" />
+          {/* Dokumen Proposal & RAB (Ringkas, tanpa penjelasan berulang) */}
+          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3 shadow-2xs">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E8E0D7]">
               <h3 className="text-xs font-bold text-[#352A28] uppercase tracking-wider">
-                Klasifikasi IndoBERT
+                Dokumen Proposal &amp; RAB
               </h3>
+              <span className="text-[11px] text-[#8A817B]">Lampiran Berkas</span>
             </div>
 
-            <div className="space-y-2">
+            <div className="flex items-center justify-between p-3 rounded-lg border border-[#E8E0D7] bg-[#FAF7F1]/60 text-xs">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <FileText className="w-5 h-5 text-[#6E2639] shrink-0" />
+                <div className="min-w-0">
+                  <p className="font-semibold text-[#352A28] truncate text-xs" title={program.proposalFileName}>
+                    {program.proposalFileName || 'Proposal_dan_RAB.pdf'}
+                  </p>
+                  <p className="text-[10px] text-[#8A817B]">
+                    {((program.proposalFileSize || 2450000) / (1024 * 1024)).toFixed(2)} MB &bull; PDF Terpadu
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => alert(`Mengunduh berkas: ${program.proposalFileName || 'Proposal.pdf'}`)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#6E2639] bg-white hover:bg-[#F5EEF0] rounded-md border border-[#E8E0D7] cursor-pointer shadow-2xs shrink-0 transition-colors"
+                title="Unduh Berkas"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Unduh</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Klasifikasi IndoBERT (Ringkas sebagai informasi pendukung) */}
+          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3 shadow-2xs">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E8E0D7]">
+              <div className="flex items-center gap-2">
+                <Cpu className="w-4 h-4 text-[#6E2639]" />
+                <h3 className="text-xs font-bold text-[#352A28] uppercase tracking-wider">
+                  Klasifikasi IndoBERT
+                </h3>
+              </div>
+              <span className="text-[10px] font-semibold text-[#6E2639] bg-[#F5EEF0] px-2 py-0.5 rounded-sm">
+                AI Classifier
+              </span>
+            </div>
+
+            <div className="space-y-2 text-xs">
               <p className="text-[11px] text-[#8A817B]">
-                Kategori terdeteksi dari pemrosesan teks proposal (Multi-Label Classifier):
+                Kategori terdeteksi dari naskah proposal:
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {program.indobertTags && program.indobertTags.length > 0 ? (
@@ -257,8 +309,8 @@ export default function ProgramDetailPage({ params }: PageProps) {
                       key={idx}
                       className="inline-flex items-center gap-1.5 text-xs bg-[#FAF7F1] border border-[#E8E0D7] text-[#352A28] px-2.5 py-1 rounded-md font-medium"
                     >
-                      <span>{tag.label}</span>
-                      <span className="text-[10px] text-[#6E2639] font-mono">
+                      <span className="truncate max-w-[200px]">{tag.label}</span>
+                      <span className="text-[10px] text-[#6E2639] font-mono font-bold">
                         {(tag.confidence * 100).toFixed(0)}%
                       </span>
                     </span>
@@ -269,111 +321,6 @@ export default function ProgramDetailPage({ params }: PageProps) {
                   </span>
                 )}
               </div>
-            </div>
-          </div>
-
-          {/* Dokumen Proposal & RAB Terpadu */}
-          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3">
-            <h3 className="text-xs font-bold text-[#352A28] uppercase tracking-wider pb-2 border-b border-[#E8E0D7]">
-              Dokumen Proposal &amp; RAB Terpadu
-            </h3>
-
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between p-3 rounded-lg border border-[#E8E0D7] bg-[#FAF7F1]/60">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <FileText className="w-5 h-5 text-[#6E2639] shrink-0" />
-                  <div className="min-w-0">
-                    <p className="font-semibold text-[#352A28] truncate">
-                      {program.proposalFileName || 'Dokumen_Proposal_dan_RAB.pdf'}
-                    </p>
-                    <p className="text-[10px] text-[#8A817B]">
-                      {((program.proposalFileSize || 2450000) / (1024 * 1024)).toFixed(2)} MB &bull; Memuat Usulan Kegiatan &amp; RAB
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => alert(`Mengunduh berkas proposal dan RAB: ${program.proposalFileName || 'Proposal.pdf'}`)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#6E2639] hover:bg-white rounded-md border border-[#E8E0D7] cursor-pointer shadow-2xs shrink-0"
-                  title="Unduh Berkas"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Unduh</span>
-                </button>
-              </div>
-
-              <div className="p-2.5 rounded-lg bg-[#FAF7F1] border border-[#E8E0D7] text-[11px] text-[#8A817B] leading-relaxed">
-                Rencana Anggaran Biaya (RAB) tercantum langsung di dalam dokumen proposal terunggah di atas dan diverifikasi oleh Bendahara Umum.
-              </div>
-            </div>
-          </div>
-
-          {/* Log Aktivitas & Riwayat Persetujuan */}
-          <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E8E0D7]">
-              <h3 className="text-xs font-bold text-[#352A28] uppercase tracking-wider">
-                Log Aktivitas &amp; Verifikasi Proker
-              </h3>
-              {isGubernur && (
-                <Link
-                  href="/activity-logs"
-                  className="text-[11px] font-semibold text-[#6E2639] hover:underline"
-                >
-                  Semua Log &rarr;
-                </Link>
-              )}
-            </div>
-
-            <div className="space-y-2.5">
-              {/* Event 1: Initial Submission */}
-              <div className="p-3 rounded-lg border border-[#E8E0D7] bg-[#FAF7F1]/60 text-xs space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[#352A28]">
-                    Pengajuan Awal Proker
-                  </span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-sm bg-[#6E2639] text-white">
-                    Diajukan
-                  </span>
-                </div>
-                <p className="text-[#352A28]">
-                  Proposal diajukan oleh <strong>{program.submittedBy}</strong> ({program.departemen}).
-                </p>
-                <span className="text-[10px] text-[#8A817B] block">
-                  {formatDate(program.submittedAt)}
-                </span>
-              </div>
-
-              {/* Approval/Revision History */}
-              {program.approvalHistory && program.approvalHistory.length > 0 ? (
-                program.approvalHistory.map((hist) => (
-                  <div
-                    key={hist.id}
-                    className={`p-3 rounded-lg border text-xs space-y-1 ${
-                      hist.action === 'APPROVED'
-                        ? 'bg-[#EDF7F1]/50 border-[#2D7A4F]/20'
-                        : 'bg-[#FEF8ED]/50 border-[#92600C]/20'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-[#352A28]">
-                        {hist.actorRole} ({hist.actorName})
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold px-1.5 py-0.2 rounded-sm ${
-                          hist.action === 'APPROVED'
-                            ? 'bg-[#2D7A4F] text-white'
-                            : 'bg-[#92600C] text-white'
-                        }`}
-                      >
-                        {hist.action === 'APPROVED' ? 'Disetujui' : 'Catatan Revisi'}
-                      </span>
-                    </div>
-                    <p className="text-[#352A28]">{hist.note}</p>
-                    <span className="text-[10px] text-[#8A817B] block">
-                      {formatDate(hist.timestamp)}
-                    </span>
-                  </div>
-                ))
-              ) : null}
             </div>
           </div>
         </div>

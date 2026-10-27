@@ -45,29 +45,29 @@ export default function CreateUserPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between pb-3 border-b border-[#E8E0D7]">
+    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in font-sans">
+      <div className="flex items-center justify-between pb-3 border-b border-[#EFE8E2]">
         <button
           type="button"
           onClick={() => router.back()}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8A817B] hover:text-[#352A28] cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#756C69] hover:text-[#4E1724] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Kembali ke Manajemen Pengguna</span>
         </button>
-        <span className="text-xs text-[#8A817B]">Form Akun Baru</span>
+        <span className="text-xs text-[#756C69]">Form Akun Baru</span>
       </div>
 
       {feedback && (
-        <div className="p-3 bg-[#EDF7F1] border border-[#2D7A4F]/25 rounded-lg flex items-center gap-2 text-xs font-semibold text-[#2D7A4F]">
+        <div className="p-3.5 bg-[#ECFDF5] border border-[#A7F3D0]/60 rounded-2xl flex items-center gap-2.5 text-xs font-semibold text-[#059669] shadow-2xs">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{feedback}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="bg-white border border-[#E8E0D7] rounded-xl p-5 sm:p-6 space-y-4">
-          <h3 className="text-sm font-bold text-[#352A28] pb-2 border-b border-[#E8E0D7]">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white border border-[#EFE8E2] rounded-3xl p-6 sm:p-7 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] space-y-5">
+          <h3 className="text-sm sm:text-base font-bold text-[#22161A] pb-3 border-b border-[#EFE8E2] tracking-tight">
             Data Akun Pengurus BEM
           </h3>
 

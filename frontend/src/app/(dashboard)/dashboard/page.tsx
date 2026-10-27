@@ -237,101 +237,83 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          {/* Connected Vertical Timeline List */}
-          <div className="relative pl-6 space-y-7 before:absolute before:left-2 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#EFE8E2]">
-            {/* Timeline Item 1: Pending Sekum */}
-            <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 group">
-              {/* Timeline Bullet Node */}
-              <span className="absolute -left-6 top-1.5 w-2.5 h-2.5 rounded-full bg-[#F59E0B] ring-4 ring-white" />
-
-              <div className="flex items-start gap-3.5 min-w-0">
-                <div className="w-10 h-10 rounded-2xl bg-[#FBF6F0] border border-[#F2ECE4] flex items-center justify-center text-[#8B263E] shrink-0 mt-0.5">
+          {/* List Aktivitas Terkini */}
+          <div className="divide-y divide-[#EFE8E2]/60">
+            {/* Item 1: Pending Sekum */}
+            <div className="flex items-center justify-between gap-4 py-3.5 first:pt-1 last:pb-1 group">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-10 h-10 rounded-2xl bg-[#FBF6F0] border border-[#F2ECE4] flex items-center justify-center text-[#8B263E] shrink-0">
                   <FileText className="w-5 h-5" />
                 </div>
-                <div className="space-y-0.5 min-w-0">
+                <div className="min-w-0">
                   <Link
                     href="/programs/PRG-2026-002"
-                    className="font-bold text-xs sm:text-[13px] text-[#22161A] group-hover:text-[#4E1724] transition-colors line-clamp-1"
+                    className="font-bold text-xs sm:text-[13px] text-[#22161A] group-hover:text-[#4E1724] transition-colors line-clamp-1 block"
                   >
                     Workshop Kewirausahaan Digital &amp; Inkubasi Bisnis Mahasiswa
                   </Link>
-                  <p className="text-xs text-[#756C69] line-clamp-1">
-                    Status berubah menjadi menunggu verifikasi Sekum.
-                  </p>
-                  <p className="text-[11px] text-[#A39893] pt-0.5">
-                    18 Oktober 2026 &bull; 14.32
+                  <p className="text-[11px] sm:text-xs text-[#A39893] mt-0.5">
+                    18 Oktober 2026
                   </p>
                 </div>
               </div>
 
               {/* Status Pill Badge */}
-              <div className="shrink-0 sm:self-center pl-13 sm:pl-0">
+              <div className="shrink-0">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#FEF7EC] text-[#B45309] border border-[#FDE68A]/60">
                   Pending Sekum
                 </span>
               </div>
             </div>
 
-            {/* Timeline Item 2: Pending Approval */}
-            <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 group">
-              {/* Timeline Bullet Node */}
-              <span className="absolute -left-6 top-1.5 w-2.5 h-2.5 rounded-full bg-[#8B5CF6] ring-4 ring-white" />
-
-              <div className="flex items-start gap-3.5 min-w-0">
-                <div className="w-10 h-10 rounded-2xl bg-[#FBF6F0] border border-[#F2ECE4] flex items-center justify-center text-[#8B263E] shrink-0 mt-0.5">
+            {/* Item 2: Pending Approval */}
+            <div className="flex items-center justify-between gap-4 py-3.5 first:pt-1 last:pb-1 group">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-10 h-10 rounded-2xl bg-[#FBF6F0] border border-[#F2ECE4] flex items-center justify-center text-[#8B263E] shrink-0">
                   <FileText className="w-5 h-5" />
                 </div>
-                <div className="space-y-0.5 min-w-0">
+                <div className="min-w-0">
                   <Link
                     href="/programs/PRG-2026-003"
-                    className="font-bold text-xs sm:text-[13px] text-[#22161A] group-hover:text-[#4E1724] transition-colors line-clamp-1"
+                    className="font-bold text-xs sm:text-[13px] text-[#22161A] group-hover:text-[#4E1724] transition-colors line-clamp-1 block"
                   >
                     Seminar Nasional Cybersecurity &amp; Cloud Defense 2026
                   </Link>
-                  <p className="text-xs text-[#756C69] line-clamp-1">
-                    Dokumen proposal telah diajukan dan menunggu persetujuan.
-                  </p>
-                  <p className="text-[11px] text-[#A39893] pt-0.5">
-                    15 Oktober 2026 &bull; 10.15
+                  <p className="text-[11px] sm:text-xs text-[#A39893] mt-0.5">
+                    15 Oktober 2026
                   </p>
                 </div>
               </div>
 
               {/* Status Pill Badge */}
-              <div className="shrink-0 sm:self-center pl-13 sm:pl-0">
+              <div className="shrink-0">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#F5F3FF] text-[#6D28D9] border border-[#DDD6FE]/60">
                   Pending Approval
                 </span>
               </div>
             </div>
 
-            {/* Timeline Item 3: Terverifikasi */}
-            <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 group">
-              {/* Timeline Bullet Node */}
-              <span className="absolute -left-6 top-1.5 w-2.5 h-2.5 rounded-full bg-[#10B981] ring-4 ring-white" />
-
-              <div className="flex items-start gap-3.5 min-w-0">
-                <div className="w-10 h-10 rounded-2xl bg-[#FBF6F0] border border-[#F2ECE4] flex items-center justify-center text-[#8B263E] shrink-0 mt-0.5">
+            {/* Item 3: Terverifikasi */}
+            <div className="flex items-center justify-between gap-4 py-3.5 first:pt-1 last:pb-1 group">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-10 h-10 rounded-2xl bg-[#FBF6F0] border border-[#F2ECE4] flex items-center justify-center text-[#8B263E] shrink-0">
                   <FileText className="w-5 h-5" />
                 </div>
-                <div className="space-y-0.5 min-w-0">
+                <div className="min-w-0">
                   <Link
                     href="/programs/PRG-2026-004"
-                    className="font-bold text-xs sm:text-[13px] text-[#22161A] group-hover:text-[#4E1724] transition-colors line-clamp-1"
+                    className="font-bold text-xs sm:text-[13px] text-[#22161A] group-hover:text-[#4E1724] transition-colors line-clamp-1 block"
                   >
                     Bakti Sosial &amp; Literasi Digital di Desa Binaan Boyolali
                   </Link>
-                  <p className="text-xs text-[#756C69] line-clamp-1">
-                    Status program telah disahkan lengkap (Approval).
-                  </p>
-                  <p className="text-[11px] text-[#A39893] pt-0.5">
-                    12 Oktober 2026 &bull; 16.45
+                  <p className="text-[11px] sm:text-xs text-[#A39893] mt-0.5">
+                    12 Oktober 2026
                   </p>
                 </div>
               </div>
 
               {/* Status Pill Badge */}
-              <div className="shrink-0 sm:self-center pl-13 sm:pl-0">
+              <div className="shrink-0">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]/60">
                   Terverifikasi
                 </span>

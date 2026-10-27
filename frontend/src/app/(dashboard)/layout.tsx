@@ -14,7 +14,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/programs': 'Program Kerja',
   '/programs/create': 'Pengajuan Program Kerja',
-  '/verifications': 'Verifikasi Birokrasi',
+  '/verifications': 'Verifikasi Proposal',
   '/archives': 'Arsip Dokumen',
   '/archives/upload': 'Unggah Dokumen Arsip',
   '/vault': 'BEM Vault Organisasi',
